@@ -26,7 +26,7 @@ turn on webremote (password remote)
 
 run from cmd line
 
-nodejs dot2apcmini2.js
+node dot2apcmini2.js
 
 --------------------
 
