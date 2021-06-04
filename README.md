@@ -2,19 +2,9 @@
 nodejs code to control dot2 software use Akai APC mini midi controller
 
 
-Required to install
+Download and instal NODEJS version 14.17 from https://nodejs.org/en/
 
-NodeJS
-
-create new folder
-
-run command
-
-npm init
-
-npm install easymidi
-
-npm install websocket
+Download my code.
 
 ----------------------
 
