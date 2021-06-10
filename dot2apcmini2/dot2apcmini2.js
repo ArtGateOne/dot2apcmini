@@ -81,7 +81,7 @@ function midiclear() {
 
 
 //clear terminal
-console.log('\033[2J');
+//console.log('\033[2J');
 
 //display info
 console.log("Akai APC mini .2 WING " + wing);
