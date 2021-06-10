@@ -12,6 +12,7 @@ midi_out = 'APC MINI 1';    //set correct midi out device name
 
 
 //global variables
+var blackout = 0; //0 off 1 on
 var pageIndex = 0;
 var pageIndex2 = 0;
 var faderbuttons = "LO";
@@ -114,7 +115,7 @@ for (i = 0; i < 90; i++) {
 
 
 //turn on page select buttons
-if (page > 0){
+if (page > 0) {
     output.send('noteon', { note: 82, velocity: 1, channel: 0 });
     output.send('noteon', { note: 83, velocity: 0, channel: 0 });
     output.send('noteon', { note: 84, velocity: 0, channel: 0 });
@@ -174,13 +175,20 @@ input.on('noteon', function (msg) {
     }
     if (msg.note == 89) {//fader buttons LO
         faderbuttons = "LO";
-        output.send('noteon', { note: 88, velocity: 0, channel: 0 }); 
-        output.send('noteon', { note: 89, velocity: 1, channel: 0 });   
+        output.send('noteon', { note: 88, velocity: 0, channel: 0 });
+        output.send('noteon', { note: 89, velocity: 1, channel: 0 });
     }
 
     if (msg.note == 98) {//Shift Button
         if (wing == 1) {
-            client.send('{"command":"SpecialMaster 2.1 At 0","session":' + session + ',"requestType":"command","maxRequests":0}');
+            if (blackout == 0) {
+                client.send('{"command":"SpecialMaster 2.1 At 0","session":' + session + ',"requestType":"command","maxRequests":0}');
+                blackout = 1;
+            } else if (blackout == 1) {
+                client.send('{"command":"SpecialMaster 2.1 At ' + faderValueMem[56] * 100 + '","session":' + session + ',"requestType":"command","maxRequests":0}');
+                blackout = 0;
+            }
+
         } else {
             client.send('{"command":"Learn SpecialMaster 3.1","session":' + session + ',"requestType":"command","maxRequests":0}');
         }
@@ -212,11 +220,6 @@ input.on('noteoff', function (msg) {
         client.send('{"requestType":"playbacks_userInput","execIndex":' + exec.index[wing][msg.note - 16] + ',"pageIndex":' + pageIndex2 + ',"faderValue":' + faderValueMem[msg.note - 16] + ',"type":1,"session":' + session + ',"maxRequests":0}');
     }
 
-    if (msg.note == 98) {//Shift Button
-        if (wing == 1) {
-            client.send('{"command":"SpecialMaster 2.1 At ' + faderValueMem[56] * 100 + '","session":' + session + ',"requestType":"command","maxRequests":0}');
-        }
-    }
 });
 
 input.on('cc', function (msg) {
@@ -230,7 +233,9 @@ input.on('cc', function (msg) {
 
         if (wing == 1) {
             if (msg.controller == 56) {
+                if (blackout == 0){
                 client.send('{"command":"SpecialMaster 2.1 At ' + (faderValue[msg.value] * 100) + '","session":' + session + ',"requestType":"command","maxRequests":0}');
+                }
             } else {
                 client.send('{"requestType":"playbacks_userInput","execIndex":' + exec.index[wing][msg.controller] + ',"pageIndex":' + pageIndex2 + ',"faderValue":' + faderValue[msg.value] + ',"type":1,"session":' + session + ',"maxRequests":0}');
             }
@@ -368,7 +373,7 @@ client.onmessage = function (e) {
                     for (i = 0; i < 8; i++) {
                         var m = 3;
                         if (obj.itemGroups[k].items[i][0].isRun == 1) {
-                            m = 1;
+                            m = 1 + blackout;
                         } else if ((obj.itemGroups[k].items[i][0].i.c) == "#000000") {
                             m = 0
                         } else {
@@ -392,7 +397,7 @@ client.onmessage = function (e) {
                 for (i = 0; i < 8; i++) {//faders dots
                     m = 0;
                     if (obj.itemGroups[0].items[i][0].isRun == 1) {
-                        m = 1;
+                        m = 1 + blackout;
                     } /*else if ((obj.itemGroups[0].items[i][0].i.c) == "#000000") {
                         m = 0
                     } else { m = 1; }*/
@@ -403,7 +408,7 @@ client.onmessage = function (e) {
 
                     if (faderbuttons == "LO") {//display faders lower buttons 
                         if (obj.itemGroups[0].items[i][0].isRun == 1) {
-                            m = 1;
+                            m = 1 + blackout;
                         } else if ((obj.itemGroups[0].items[i][0].i.c) == "#000000") {
                             m = 0
                         } else { m = 3; }
@@ -435,7 +440,7 @@ client.onmessage = function (e) {
                     for (i = 0; i < 8; i++) {//upper fader exec
 
                         if (obj.itemGroups[1].items[i][0].isRun == 1) {
-                            m = 1;
+                            m = 1 + blackout;
                         } else if ((obj.itemGroups[1].items[i][0].i.c) == "#000000") {
                             m = 0
                         } else { m = 5; }
@@ -447,7 +452,7 @@ client.onmessage = function (e) {
                     }
                     for (i = 0; i < 8; i++) {
                         if (obj.itemGroups[2].items[i][0].isRun == 1) {
-                            m = 1;
+                            m = 1 + blackout;
                         } else if ((obj.itemGroups[2].items[i][0].i.c) == "#000000") {
                             m = 0
                         } else { m = 5; }
