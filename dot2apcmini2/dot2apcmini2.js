@@ -410,7 +410,7 @@ client.onmessage = function (e) {
                         if (obj.itemGroups[0].items[i][0].isRun == 1) {
                             m = 1 + blackout;
                         } else if ((obj.itemGroups[0].items[i][0].i.c) == "#000000") {
-                            m = 0
+                            m = 0;
                         } else { m = 3; }
 
                         if (ledmatrix[j - 64] != m) {
@@ -418,7 +418,7 @@ client.onmessage = function (e) {
                             output.send('noteon', { note: j - 64, velocity: m, channel: 0 });
                         }
 
-                        if (m == 1) m = 3;
+                        if (m == 1 || m == 2) m = 3;
 
                         if (ledmatrix[j - 56] != m) {
                             ledmatrix[j - 56] = m;
