@@ -39,7 +39,10 @@ midi_out = 'APC MINI 1';    //set correct midi out device name
 
 
 -----
+
 nodejs 16.14
+
+
 midi_in = 'APC MINI';     //set correct midi in device name
 
 midi_out = 'APC MINI';    //set correct midi out device name
