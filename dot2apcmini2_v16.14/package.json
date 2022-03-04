@@ -1,0 +1,22 @@
+{
+  "name": "dot2apcmini2_v16.14",
+  "version": "1.0.0",
+  "description": "none",
+  "main": "dot2apcmini2.js",
+  "scripts": {
+    "test": "none"
+  },
+  "repository": {
+    "type": "git",
+    "url": "none"
+  },
+  "keywords": [
+    "none"
+  ],
+  "author": "ArtGateOne",
+  "license": "ISC",
+  "dependencies": {
+    "easymidi": "^2.1.0",
+    "websocket": "^1.0.34"
+  }
+}
