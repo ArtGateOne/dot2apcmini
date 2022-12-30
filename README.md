@@ -4,10 +4,6 @@ nodejs code to control dot2 software use Akai APCmini midi controller
 
 Download and instal NODEJS version 14.17 from https://nodejs.org/dist/v14.17.0/node-v14.17.0-x64.msi
 
-or https://nodejs.org/dist/v16.14.0/node-v16.14.0-x64.msi for 16.14 version
-
-
-
 
 Download my code.
 
@@ -22,6 +18,10 @@ turn on webremote (password remote)
 run from command prompt (win+R - cmd)
 
 node dot2apcmini2.js
+
+if u have akai apc mini mk2
+
+node dot2apcminimk2.js
 
 --------------------
 
@@ -40,11 +40,20 @@ midi_out = 'APC MINI 1';    //set correct midi out device name
 
 -----
 
-nodejs 16.14
+for mk2 u can select 2 color modes, and led brightnes
 
 
-midi_in = 'APC MINI';     //set correct midi in device name
+//config 
+wing = 1;   //set wing 1 or 2
 
-midi_out = 'APC MINI';    //set correct midi out device name
+page = 1;   //set page select mode - 0 - off, 1 - only exec buttons, 2 - exec buttons and faders together
+
+midi_in = 'APC mini mk2 0';     //set correct midi in device name
+
+midi_out = 'APC mini mk2 1';    //set correct midi out device name
+
+brightness = 6;     //led brightness 0-6
+
+darkmode = 0;   //new color mode 1 - ON , 0 - OFF
 
 
