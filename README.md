@@ -56,4 +56,6 @@ brightness = 6;     //led brightness 0-6
 
 darkmode = 0;   //new color mode 1 - ON , 0 - OFF
 
+colorpage = 5;  //select page to display colors (1- 5), 0 = off
+
 
