@@ -11,6 +11,7 @@ midi_in = 'APC mini mk2 0';     //set correct midi in device name
 midi_out = 'APC mini mk2 1';    //set correct midi out device name
 brightness = 6;     //led brightness 0-6
 darkmode = 0;   //new color mode 1 - ON , 0 - OFF
+colorpage = 5;  //select page to display colors (1- 5), 0 = off
 
 
 
@@ -21,6 +22,7 @@ var c3 = 21; //color executor ON
 var f1 = 0; //Color fader button empty
 var f2 = 5; //color fader button OFF
 var f3 = 21; //color fader button ON
+var palete = [53, 45, 37, 21, 13, 9, 5, 3]; //palete colors <----
 
 if (darkmode === 1) {
     var c1 = 0;
@@ -31,8 +33,10 @@ if (darkmode === 1) {
     var f3 = 5;
 }
 var blackout = 0; //0 off 1 on
+colorpage = colorpage - 1;
 var pageIndex = 0;
 var pageIndex2 = 0;
+var channel = 6;
 var faderbuttons = "LO";
 var request = 0;
 var session = 0;
@@ -202,14 +206,8 @@ input.on('noteon', function (msg) {
 
     if (msg.note == 122) {//Shift Button
         if (wing == 1) {
-            if (blackout == 0) {
-                client.send('{"command":"SpecialMaster 2.1 At 0","session":' + session + ',"requestType":"command","maxRequests":0}');
-                blackout = 1;
-            } else if (blackout == 1) {
-                client.send('{"command":"SpecialMaster 2.1 At ' + faderValueMem[56] * 100 + '","session":' + session + ',"requestType":"command","maxRequests":0}');
-                blackout = 0;
-            }
-
+            client.send('{"command":"SpecialMaster 2.1 At 0","session":' + session + ',"requestType":"command","maxRequests":0}');
+            blackout = 1;
         } else {
             client.send('{"command":"Learn SpecialMaster 3.1","session":' + session + ',"requestType":"command","maxRequests":0}');
         }
@@ -239,6 +237,13 @@ input.on('noteoff', function (msg) {
 
     if (msg.note >= 100 && msg.note <= 107) {
         client.send('{"requestType":"playbacks_userInput","execIndex":' + exec.index[wing][msg.note - 52] + ',"pageIndex":' + pageIndex2 + ',"faderValue":' + faderValueMem[msg.note - 52] + ',"type":1,"session":' + session + ',"maxRequests":0}');
+    }
+
+    if (msg.note == 122) {//Shift Button
+        if (wing == 1) {
+            client.send('{"command":"SpecialMaster 2.1 At ' + faderValueMem[56] * 100 + '","session":' + session + ',"requestType":"command","maxRequests":0}');
+            blackout = 0;
+        }
     }
 
 });
@@ -321,7 +326,7 @@ client.onmessage = function (e) {
 
 
 
-    if (typeof e.data === 'string') {
+    if (typeof e.data == 'string') {
         //console.log("Received: '" + e.data + "'");
         //console.log(e.data);
 
@@ -390,22 +395,43 @@ client.onmessage = function (e) {
 
                 var j = 63;
 
-                for (k = 0; k < 6; k++) {
-                    for (i = 0; i < 8; i++) {
-                        var m = c1;
-                        if (obj.itemGroups[k].items[i][0].isRun == 1) {
-                            m = c3 + blackout;
-                        } else if ((obj.itemGroups[k].items[i][0].i.c) == "#000000") {
-                            m = c1
-                        } else {
-                            m = c2;
-                        }
+                if (colorpage == pageIndex) {
+                    for (k = 0; k < 6; k++) {
+                        for (i = 0; i < 8; i++) {
+                            var m = palete[i];
+                            if (obj.itemGroups[k].items[i][0].isRun == 1) {
+                                channel = 8;
+                            } else if ((obj.itemGroups[k].items[i][0].i.c) == "#000000") {
+                                channel = 0;
+                            } else {
+                                channel = brightness;
+                            }
 
-                        if (ledmatrix[j] != m) {
+
                             ledmatrix[j] = m;
-                            output.send('noteon', { note: j, velocity: m, channel: brightness });
+                            output.send('noteon', { note: j, velocity: m, channel: channel });
+
+                            j = j - 1;
                         }
-                        j = j - 1;
+                    }
+                } else {
+                    for (k = 0; k < 6; k++) {
+                        for (i = 0; i < 8; i++) {
+                            var m = c1;
+                            if (obj.itemGroups[k].items[i][0].isRun == 1) {
+                                m = c3 + blackout;
+                            } else if ((obj.itemGroups[k].items[i][0].i.c) == "#000000") {
+                                m = c1
+                            } else {
+                                m = c2;
+                            }
+
+                            if (ledmatrix[j] != m) {
+                                ledmatrix[j] = m;
+                                output.send('noteon', { note: j, velocity: m, channel: brightness });
+                            }
+                            j = j - 1;
+                        }
                     }
                 }
             }
@@ -445,14 +471,8 @@ client.onmessage = function (e) {
                             ledmatrix[j - 56] = m;
                             output.send('noteon', { note: j - 56, velocity: m, channel: brightness });
                         }
-
                     }
-
-
-
                     j = j - 1;
-
-
                 }
 
 
