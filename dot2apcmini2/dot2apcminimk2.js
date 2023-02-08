@@ -1,3 +1,4 @@
+//dot2apcminik2 v.beta3
 var easymidi = require('easymidi');
 var W3CWebSocket = require('websocket')
     .w3cwebsocket;
@@ -402,10 +403,16 @@ client.onmessage = function (e) {
                             var m = palete[i];
                             if (obj.itemGroups[k].items[i][0].isRun == 1) {
                                 channel = 8;
+                                if (darkmode == 1){
+                                    channel = brightness;
+                                }
                             } else if ((obj.itemGroups[k].items[i][0].i.c) == "#000000") {
                                 channel = 0;
                             } else {
                                 channel = brightness;
+                                if (darkmode == 1){
+                                    channel = 0;
+                                }
                             }
 
                             if (ledmatrix[j] != m || ledvelocity[j] != channel) {
