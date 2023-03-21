@@ -1,4 +1,5 @@
-//dot2apcminik2 v.beta3
+//dot2 Akai APC mini mk2 control code v 0.4 by ArtGateOne
+
 var easymidi = require('easymidi');
 var W3CWebSocket = require('websocket')
     .w3cwebsocket;
@@ -6,24 +7,30 @@ var client = new W3CWebSocket('ws://localhost:80/'); //U can change localhost(12
 
 
 //config 
-wing = 1;   //set wing 1 or 2
-page = 1;   //set page select mode - 0 - off, 1 - only exec buttons, 2 - exec buttons and faders together
+wing = 0;   //set wing 0(core fader + b-wing 1), 1(f-wing 1 + b-wing 1), 2(f-wing 2 + b-wing 2),
+pageselect = 1;   //set page select mode - 0 - off, 1 - only exec buttons, 2 - exec buttons and faders together
 midi_in = 'APC mini mk2 0';     //set correct midi in device name
 midi_out = 'APC mini mk2 1';    //set correct midi out device name
-brightness = 6;     //led brightness 0-6
+brightness = 4;     //led brightness 0-6
 darkmode = 0;   //new color mode 1 - ON , 0 - OFF
 colorpage = 5;  //select page to display colors (1- 5), 0 = off
 
 
 
 //global variables
+var PauseButtonCommand = "DefGoPause";
+var GoMinusButtonCommand = "DefGoBack";
+var GoPlusButtonCommand = "DefGoForward";
+var MasterLeftFaderCommand = "SpecialMaster 1.1 At";
+var MasterRightFaderCommand = "SpecialMaster 1.2 At";
 var c1 = 0; //Color executor empty
 var c2 = 9; //color executor OFF
 var c3 = 21; //color executor ON
 var f1 = 0; //Color fader button empty
 var f2 = 5; //color fader button OFF
 var f3 = 21; //color fader button ON
-var palete = [53, 45, 37, 21, 13, 9, 5, 3]; //palete colors <----
+//var palete = [53, 45, 37, 21, 13, 9, 5, 3]; //palete colors <----
+var palete = [53, 45, 37, 21, 13, 96, 5, 3]; //palete colors <----
 
 if (darkmode === 1) {
     var c1 = 0;
@@ -36,7 +43,7 @@ if (darkmode === 1) {
 var blackout = 0; //0 off 1 on
 colorpage = colorpage - 1;
 var pageIndex = 0;
-var pageIndex2 = 0;
+var pageIndex2 = 0; //default page for faders (0 = page 1, 1 = page 2 .....) if u dont use page select mode 2
 var channel = 6;
 var faderbuttons = "LO";
 var request = 0;
@@ -44,14 +51,18 @@ var session = 0;
 var exec = JSON.parse('{"index":[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,4,3,2,1,0,66,66,66,66,66],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,12,11,10,9,8,7,6,66],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,21,20,19,18,17,16,15,14,66]]}');
 var ledmatrix = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 9, 9, 9, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 9, 0, 9, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var faderValue = [0, 0, 0, 0, 0.002, 0.006, 0.01, 0.014, 0.018, 0.022, 0.026, 0.03, 0.034, 0.038, 0.042, 0.046, 0.05, 0.053, 0.057, 0.061, 0.065, 0.069, 0.073, 0.077, 0.081, 0.085, 0.089, 0.093, 0.097, 0.1, 0.104, 0.108, 0.112, 0.116, 0.12, 0.124, 0.128, 0.132, 0.136, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 0.3, 0.31, 0.32, 0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39, 0.4, 0.41, 0.42, 0.43, 0.44, 0.45, 0.46, 0.47, 0.48, 0.49, 0.5, 0.51, 0.52, 0.53, 0.54, 0.55, 0.56, 0.57, 0.58, 0.59, 0.6, 0.61, 0.62, 0.63, 0.64, 0.65, 0.66, 0.67, 0.68, 0.69, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.76, 0.77, 0.78, 0.79, 0.8, 0.81, 0.82, 0.83, 0.84, 0.85, 0.86, 0.87, 0.88, 0.89, 0.9, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99, 1, 1, 1];
+var mfaderValue = [0, 0, 0.8, 1.6, 2.4, 3.2, 4, 4.8, 5.6, 6.4, 7.2, 8, 8.8, 9.6, 10.4, 11.2, 12, 12.8, 13.6, 14.4, 15.2, 16, 16.8, 17.6, 18.4, 19.2, 20, 20.8, 21.6, 22.4, 23.2, 24, 24.8, 25.6, 26.4, 27.2, 28, 28.8, 29.6, 30.4, 31.2, 32, 32.8, 33.6, 34.4, 35.2, 36, 36.8, 37.6, 38.4, 39.2, 40, 40.8, 41.6, 42.4, 43.2, 44, 44.8, 45.6, 46.4, 47.2, 48, 48.8, 49.6, 50.4, 51.2, 52, 52.8, 53.6, 54.4, 55.2, 56, 56.8, 57.6, 58.4, 59.2, 60, 60.8, 61.6, 62.4, 63.2, 64, 64.8, 65.6, 66.4, 67.2, 68, 68.8, 69.6, 70.4, 71.2, 72, 72.8, 73.6, 74.4, 75.2, 76, 76.8, 77.6, 78.4, 79.2, 80, 80.8, 81.6, 82.4, 83.2, 84, 84.8, 85.6, 86.4, 87.2, 88, 88.8, 89.6, 90.4, 91.2, 92, 92.8, 93.6, 94.4, 95.2, 96, 96.8, 97.6, 98.4, 99.2, 100, 100];
 var faderValueMem = [0, 0, 0];
 var ledvelocity = [0, 0, 0];
 var faderTime = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 const NS_PER_SEC = 1e9;
 
-
-if (wing == 1) {
-    faderValueMem[56] = 1;
+if (wing == 0) {
+    faderValueMem[56] = 127;
+    var fbuttons = [5, 4, 3, 2, 1, 0, 0, 0, 5, 4, 3, 2, 1, 0, 0, 0];
+    var buttons = [205, 204, 203, 202, 201, 200, 200, 200, 105, 104, 103, 102, 101, 100, 100, 100, 807, 806, 805, 804, 803, 802, 801, 800, 707, 706, 705, 704, 703, 702, 701, 700, 607, 606, 605, 604, 603, 602, 601, 600, 507, 506, 505, 504, 503, 502, 501, 500, 407, 406, 405, 404, 403, 402, 401, 400, 307, 306, 305, 304, 303, 302, 301, 300];
+} else if (wing == 1) {
+    faderValueMem[56] = 127;
     var fbuttons = [13, 12, 11, 10, 9, 8, 7, 6, 13, 12, 11, 10, 9, 8, 7, 6];
     var buttons = [213, 212, 211, 210, 209, 208, 207, 206, 113, 112, 111, 110, 109, 108, 107, 106, 807, 806, 805, 804, 803, 802, 801, 800, 707, 706, 705, 704, 703, 702, 701, 700, 607, 606, 605, 604, 603, 602, 601, 600, 507, 506, 505, 504, 503, 502, 501, 500, 407, 406, 405, 404, 403, 402, 401, 400, 307, 306, 305, 304, 303, 302, 301, 300];
 } else if (wing == 2) {
@@ -80,12 +91,16 @@ function sleep(time, callback) {
 //interval send data to server function
 function interval() {
     if (session > 0) {
-        if (wing == 1) {
+        if (wing == 0) {
+            client.send('{"requestType":"playbacks","startIndex":[300,400,500,600,700,800],"itemsCount":[8,8,8,8,8,8],"pageIndex":' + pageIndex + ',"itemsType":[3,3,3,3,3,3],"view":3,"execButtonViewMode":2,"buttonsViewMode":0,"session":' + session + ',"maxRequests":1}');
+            client.send('{"requestType":"playbacks","startIndex":[0,100,200],"itemsCount":[6,6,6],"pageIndex":' + pageIndex2 + ',"itemsType":[2,3,3],"view":2,"execButtonViewMode":1,"buttonsViewMode":0,"session":' + session + ',"maxRequests":1}');
+
+        } else if (wing == 1) {
             client.send('{"requestType":"playbacks","startIndex":[300,400,500,600,700,800],"itemsCount":[8,8,8,8,8,8],"pageIndex":' + pageIndex + ',"itemsType":[3,3,3,3,3,3],"view":3,"execButtonViewMode":2,"buttonsViewMode":0,"session":' + session + ',"maxRequests":1}');
             client.send('{"requestType":"playbacks","startIndex":[6,106,206],"itemsCount":[8,8,8],"pageIndex":' + pageIndex2 + ',"itemsType":[2,3,3],"view":2,"execButtonViewMode":1,"buttonsViewMode":0,"session":' + session + ',"maxRequests":1}');
 
         }
-        if (wing == 2) {
+        else if (wing == 2) {
             client.send('{"requestType":"playbacks","startIndex":[308,408,508,608,708,808],"itemsCount":[8,8,8,8,8,8],"pageIndex":' + pageIndex + ',"itemsType":[3,3,3,3,3,3],"view":3,"execButtonViewMode":2,"buttonsViewMode":0,"session":' + session + ',"maxRequests":1}');
             client.send('{"requestType":"playbacks","startIndex":[14,114,214],"itemsCount":[8,8,8],"pageIndex":' + pageIndex2 + ',"itemsType":[2,3,3],"view":2,"execButtonViewMode":1,"buttonsViewMode":0,"session":' + session + ',"maxRequests":1}');
         }
@@ -142,12 +157,30 @@ for (i = 0; i < 120; i++) {
 
 
 //turn on page select buttons
-if (page > 0) {
+if (pageselect > 0) {
     output.send('noteon', { note: 112, velocity: 127, channel: 0 });
     output.send('noteon', { note: 113, velocity: 0, channel: 0 });
     output.send('noteon', { note: 114, velocity: 0, channel: 0 });
     output.send('noteon', { note: 115, velocity: 0, channel: 0 });
     output.send('noteon', { note: 116, velocity: 0, channel: 0 });
+}
+
+//color Go+ Go- Pause buttons
+if (wing == 0) {
+    if (darkmode == 1) {
+        output.send('noteon', { note: 6, velocity: 0, channel: brightness });//off
+        output.send('noteon', { note: 7, velocity: 1, channel: brightness });//Mid button
+        output.send('noteon', { note: 14, velocity: 0, channel: brightness });//off
+        output.send('noteon', { note: 15, velocity: 1, channel: brightness });//Top button
+        output.send('noteon', { note: 107, velocity: 127, channel: 0 });// dot - Go button
+    }
+    else {
+        output.send('noteon', { note: 6, velocity: 0, channel: brightness });//off
+        output.send('noteon', { note: 7, velocity: 21, channel: brightness });//Mid button
+        output.send('noteon', { note: 14, velocity: 0, channel: brightness });//off
+        output.send('noteon', { note: 15, velocity: 45, channel: brightness });//Top button
+        output.send('noteon', { note: 107, velocity: 127, channel: 0 });// dot - Go button
+    }
 }
 
 //turn on led buttons
@@ -160,7 +193,31 @@ output.send('noteon', { note: 119, velocity: 127, channel: 0 });//fader buttons 
 //input.on('noteon', msg => console.log('noteon', msg.note, msg.velocity, msg.channel));
 input.on('noteon', function (msg) {
 
-    if (msg.note >= 0 && msg.note <= 15) {
+    if (msg.note >= 0 && msg.note <= 15 && wing == 0) {
+        if (msg.note == 6) {
+            //do nothing
+        }
+        else if (msg.note == 7) {
+            client.send('{"command":"' + GoMinusButtonCommand + '","session":' + session + ',"requestType":"command","maxRequests":0}');
+        }
+        else if (msg.note == 14) {
+            //do nothing
+        }
+        else if (msg.note == 15) {
+            client.send('{"command":"' + PauseButtonCommand + '","session":' + session + ',"requestType":"command","maxRequests":0}');
+        }
+        else if (faderbuttons == "HI") {
+            client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
+        } else {
+            if (msg.note < 8) {
+                client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + fbuttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":1,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
+            } else {
+                client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + fbuttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
+            }
+        }
+    }
+
+    else if (msg.note >= 0 && msg.note <= 15) {
         if (faderbuttons == "HI") {
             client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
         } else {
@@ -172,21 +229,28 @@ input.on('noteon', function (msg) {
         }
     }
 
-    if (msg.note >= 16 && msg.note <= 63) {
+    else if (msg.note >= 16 && msg.note <= 63) {
         client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex + ',"buttonId":0,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
     }
 
-    if (msg.note >= 100 && msg.note <= 107) {
-        client.send('{"requestType":"playbacks_userInput","execIndex":' + exec.index[wing][msg.note - 52] + ',"pageIndex":' + pageIndex2 + ',"faderValue":' + 1 + ',"type":1,"session":' + session + ',"maxRequests":0}');
+    else if (msg.note >= 100 && msg.note <= 107) {
+        if (msg.note == 106 && wing == 0) {
+            //do nothing
+        }
+        else if (msg.note == 107 && wing == 0) {
+            client.send('{"command":' + GoPlusButtonCommand + ',"session":' + session + ',"requestType":"command","maxRequests":0}');
+        } else {
+            client.send('{"requestType":"playbacks_userInput","execIndex":' + exec.index[wing][msg.note - 52] + ',"pageIndex":' + pageIndex2 + ',"faderValue":' + 1 + ',"type":1,"session":' + session + ',"maxRequests":0}');
+        }
     }
 
-    if (msg.note >= 112 && msg.note <= 116) {//page select
-        if (page == 1) {
+    else if (msg.note >= 112 && msg.note <= 116) {//page select
+        if (pageselect == 1) {
             output.send('noteon', { note: (pageIndex + 112), velocity: 0, channel: 0 });
             pageIndex = msg.note - 112;
             output.send('noteon', { note: (msg.note), velocity: 1, channel: 0 });
         }
-        if (page == 2) {
+        else if (pageselect == 2) {
             output.send('noteon', { note: (pageIndex + 82), velocity: 0, channel: 0 });
             pageIndex = msg.note - 112;
             pageIndex2 = msg.note - 112;
@@ -195,22 +259,22 @@ input.on('noteon', function (msg) {
 
     }
 
-    if (msg.note == 118) {//fader buttons HI
+    else if (msg.note == 118) {//fader buttons HI
         faderbuttons = "HI";
         output.send('noteon', { note: 118, velocity: 127, channel: 0 });
         output.send('noteon', { note: 119, velocity: 0, channel: 0 });
     }
-    if (msg.note == 119) {//fader buttons LO
+    else if (msg.note == 119) {//fader buttons LO
         faderbuttons = "LO";
         output.send('noteon', { note: 118, velocity: 0, channel: 0 });
         output.send('noteon', { note: 119, velocity: 127, channel: 0 });
     }
 
-    if (msg.note == 122) {//Shift Button
-        if (wing == 1) {
+    else if (msg.note == 122) {//Shift Button
+        if (wing == 1 || wing == 0) {
             client.send('{"command":"SpecialMaster 2.1 At 0","session":' + session + ',"requestType":"command","maxRequests":0}');
             blackout = 1;
-        } else {
+        } else if (wing == 2) {
             client.send('{"command":"Learn SpecialMaster 3.1","session":' + session + ',"requestType":"command","maxRequests":0}');
         }
     }
@@ -221,7 +285,33 @@ input.on('noteon', function (msg) {
 
 input.on('noteoff', function (msg) {
 
-    if (msg.note >= 0 && msg.note <= 15) {
+
+    if (msg.note >= 0 && msg.note <= 15 && wing == 0) {
+        if (msg.note == 6) {
+            //do nothing
+        }
+        else if (msg.note == 7) {
+            //do nothing
+        }
+        else if (msg.note == 14) {
+            //do nothing
+        }
+        else if (msg.note == 15) {
+            //do nothing
+        }
+        else
+            if (faderbuttons == "HI") {
+                client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
+            } else {
+                if (msg.note < 8) {
+                    client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + fbuttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":1,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
+                } else {
+                    client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + fbuttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
+                }
+            }
+    }
+
+    else if (msg.note >= 0 && msg.note <= 15) {
         if (faderbuttons == "HI") {
             client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
         } else {
@@ -233,17 +323,24 @@ input.on('noteoff', function (msg) {
         }
     }
 
-    if (msg.note >= 16 && msg.note <= 63) {
+    else if (msg.note >= 16 && msg.note <= 63) {
         client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex + ',"buttonId":0,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
     }
 
-    if (msg.note >= 100 && msg.note <= 107) {
-        client.send('{"requestType":"playbacks_userInput","execIndex":' + exec.index[wing][msg.note - 52] + ',"pageIndex":' + pageIndex2 + ',"faderValue":' + faderValueMem[msg.note - 52] + ',"type":1,"session":' + session + ',"maxRequests":0}');
+    else if (msg.note >= 100 && msg.note <= 107) {
+        if (msg.note == 106 && wing == 0) {
+            //do nothing
+        }
+        else if (msg.note == 107 && wing == 0) {
+            //do nothing
+        } else {
+            client.send('{"requestType":"playbacks_userInput","execIndex":' + exec.index[wing][msg.note - 52] + ',"pageIndex":' + pageIndex2 + ',"faderValue":' + faderValue[faderValueMem[msg.note - 52]] + ',"type":1,"session":' + session + ',"maxRequests":0}');
+        }
     }
 
-    if (msg.note == 122) {//Shift Button
-        if (wing == 1) {
-            client.send('{"command":"SpecialMaster 2.1 At ' + faderValueMem[56] * 100 + '","session":' + session + ',"requestType":"command","maxRequests":0}');
+    else if (msg.note == 122) {//Shift Button
+        if (wing == 1 || wing == 0) {
+            client.send('{"command":"SpecialMaster 2.1 At ' + mfaderValue[faderValueMem[56]] + '","session":' + session + ',"requestType":"command","maxRequests":0}');
             blackout = 0;
         }
     }
@@ -252,17 +349,30 @@ input.on('noteoff', function (msg) {
 
 input.on('cc', function (msg) {
     diff = process.hrtime(faderTime[msg.controller]);
-    if ((diff[0] * NS_PER_SEC + diff[1]) >= 50000000 | msg.value == 0 | msg.value == 127) {
+    if ((diff[0] * NS_PER_SEC + diff[1]) >= 50000000 || msg.value == 0 || msg.value == 127) {
 
         faderTime[msg.controller] = process.hrtime();
 
-        faderValueMem[msg.controller] = faderValue[msg.value];
+        faderValueMem[msg.controller] = msg.value;
+
+        if (wing == 0) {
+            if (msg.controller == 54) { //MASTER FADER LEFT
+                client.send('{"command":"' + MasterLeftFaderCommand + " " + (mfaderValue[msg.value]) + '","session":' + session + ',"requestType":"command","maxRequests":0}');
+            } else if (msg.controller == 55) {//MASTER FADER RIGHT
+                client.send('{"command":"' + MasterRightFaderCommand + " " + (mfaderValue[msg.value]) + '","session":' + session + ',"requestType":"command","maxRequests":0}');
+            } else if (msg.controller == 56) {// GRAND MASTER FADER
+                client.send('{"command":"SpecialMaster 2.1 At ' + (mfaderValue[msg.value]) + '","session":' + session + ',"requestType":"command","maxRequests":0}');
+            } else {
+                client.send('{"requestType":"playbacks_userInput","execIndex":' + exec.index[wing][msg.controller] + ',"pageIndex":' + pageIndex2 + ',"faderValue":' + faderValue[msg.value] + ',"type":1,"session":' + session + ',"maxRequests":0}');
+            }
+
+        }
 
 
-        if (wing == 1) {
+        else if (wing == 1) {
             if (msg.controller == 56) {
                 if (blackout == 0) {
-                    client.send('{"command":"SpecialMaster 2.1 At ' + (faderValue[msg.value] * 100) + '","session":' + session + ',"requestType":"command","maxRequests":0}');
+                    client.send('{"command":"SpecialMaster 2.1 At ' + (mfaderValue[msg.value]) + '","session":' + session + ',"requestType":"command","maxRequests":0}');
                 }
             } else {
                 client.send('{"requestType":"playbacks_userInput","execIndex":' + exec.index[wing][msg.controller] + ',"pageIndex":' + pageIndex2 + ',"faderValue":' + faderValue[msg.value] + ',"type":1,"session":' + session + ',"maxRequests":0}');
@@ -270,7 +380,7 @@ input.on('cc', function (msg) {
 
         }
 
-        if (wing == 2) {
+        else if (wing == 2) {
             if (msg.controller == 56) {
                 client.send('{"command":"SpecialMaster 3.1 At ' + (faderValue[msg.value] * 225) + '","session":' + session + ',"requestType":"command","maxRequests":0}');
             } else {
@@ -376,6 +486,7 @@ client.onmessage = function (e) {
             console.log("SESSION " + session);
         }
 
+        /*
         if (obj.responseType == "presetTypeList") {
             //console.log("Preset Type List");
         }
@@ -388,8 +499,9 @@ client.onmessage = function (e) {
         if (obj.responseType == "getdata") {
             //console.log("Get Data");
         }
+        */
 
-        if (obj.responseType == "playbacks") {
+        else if (obj.responseType == "playbacks") {
 
 
 
@@ -403,22 +515,22 @@ client.onmessage = function (e) {
                             var m = palete[i];
                             if (obj.itemGroups[k].items[i][0].isRun == 1) {
                                 channel = 8;
-                                if (darkmode == 1){
+                                if (darkmode == 1) {
                                     channel = brightness;
                                 }
                             } else if ((obj.itemGroups[k].items[i][0].i.c) == "#000000") {
                                 channel = 0;
                             } else {
                                 channel = brightness;
-                                if (darkmode == 1){
+                                if (darkmode == 1) {
                                     channel = 0;
                                 }
                             }
 
                             if (ledmatrix[j] != m || ledvelocity[j] != channel) {
-                            ledmatrix[j] = m;
-                            ledvelocity[j] = channel;
-                            output.send('noteon', { note: j, velocity: m, channel: channel });
+                                ledmatrix[j] = m;
+                                ledvelocity[j] = channel;
+                                output.send('noteon', { note: j, velocity: m, channel: channel });
                             }
                             j = j - 1;
                         }
@@ -449,69 +561,135 @@ client.onmessage = function (e) {
 
             if (obj.responseSubType == 2) {
 
-                j = 71;
+                if (wing == 0) {
+                    j = 69;
 
-                for (i = 0; i < 8; i++) {//faders dots
-                    m = 0;
-                    if (obj.itemGroups[0].items[i][0].isRun == 1) {
-                        m = 127;
-                    } /*else if ((obj.itemGroups[0].items[i][0].i.c) == "#000000") {
+                    for (i = 0; i < 6; i++) {//faders dots
+                        m = 0;
+                        if (obj.itemGroups[0].items[i][0].isRun == 1) {
+                            m = 127;
+                        } /*else if ((obj.itemGroups[0].items[i][0].i.c) == "#000000") {
                         m = 0
                     } else { m = 1; }*/
-                    if (ledmatrix[j] != m) {
-                        ledmatrix[j] = m;
-                        output.send('noteon', { note: j + 36, velocity: m, channel: 0 });
+                        if (ledmatrix[j] != m) {
+                            ledmatrix[j] = m;
+                            output.send('noteon', { note: j + 36, velocity: m, channel: 0 });
+                        }
+                        if (faderbuttons == "LO") {//display faders lower buttons 
+                            if (obj.itemGroups[0].items[i][0].isRun == 1) {
+                                m = f3;
+                            } else if ((obj.itemGroups[0].items[i][0].i.c) == "#000000") {
+                                m = f1;
+                            } else { m = f2; }
+
+                            if (ledmatrix[j - 64] != m) {
+                                ledmatrix[j - 64] = m;
+                                output.send('noteon', { note: j - 64, velocity: m, channel: brightness });
+                            }
+
+                            if (m == f2 || m == f3) m = f2;
+
+                            if (ledmatrix[j - 56] != m) {
+                                ledmatrix[j - 56] = m;
+                                output.send('noteon', { note: j - 56, velocity: m, channel: brightness });
+                            }
+                        }
+                        j--;
+                    }
+                    if (faderbuttons == "HI") {
+                        j = 13;
+                        for (i = 0; i < 6; i++) {//upper fader exec
+
+                            if (obj.itemGroups[1].items[i][0].isRun == 1) {
+                                m = c3;
+                            } else if ((obj.itemGroups[1].items[i][0].i.c) == "#000000") {
+                                m = c1;
+                            } else { m = c2; }
+                            if (ledmatrix[j] != m) {
+                                ledmatrix[j] = m;
+                                output.send('noteon', { note: j, velocity: m, channel: brightness });
+                            }
+                            j = j - 1;
+                        }
+                        j = 5;
+                        for (i = 0; i < 6; i++) {
+                            if (obj.itemGroups[2].items[i][0].isRun == 1) {
+                                m = c3;
+                            } else if ((obj.itemGroups[2].items[i][0].i.c) == "#000000") {
+                                m = c1;
+                            } else { m = c2; }
+                            if (ledmatrix[j] != m) {
+                                ledmatrix[j] = m;
+                                output.send('noteon', { note: j, velocity: m, channel: brightness });
+                            }
+                            j = j - 1;
+                        }
                     }
 
-                    if (faderbuttons == "LO") {//display faders lower buttons 
+                } else {
+                    j = 71;
+
+                    for (i = 0; i < 8; i++) {//faders dots
+                        m = 0;
                         if (obj.itemGroups[0].items[i][0].isRun == 1) {
-                            m = f3;
-                        } else if ((obj.itemGroups[0].items[i][0].i.c) == "#000000") {
-                            m = f1;
-                        } else { m = f2; }
-
-                        if (ledmatrix[j - 64] != m) {
-                            ledmatrix[j - 64] = m;
-                            output.send('noteon', { note: j - 64, velocity: m, channel: brightness });
-                        }
-
-                        if (m == f2 || m == f3) m = f2;
-
-                        if (ledmatrix[j - 56] != m) {
-                            ledmatrix[j - 56] = m;
-                            output.send('noteon', { note: j - 56, velocity: m, channel: brightness });
-                        }
-                    }
-                    j = j - 1;
-                }
-
-
-                if (faderbuttons == "HI") {
-                    j = 15;
-                    for (i = 0; i < 8; i++) {//upper fader exec
-
-                        if (obj.itemGroups[1].items[i][0].isRun == 1) {
-                            m = c3;
-                        } else if ((obj.itemGroups[1].items[i][0].i.c) == "#000000") {
-                            m = c1;
-                        } else { m = c2; }
+                            m = 127;
+                        } /*else if ((obj.itemGroups[0].items[i][0].i.c) == "#000000") {
+                        m = 0
+                    } else { m = 1; }*/
                         if (ledmatrix[j] != m) {
                             ledmatrix[j] = m;
-                            output.send('noteon', { note: j, velocity: m, channel: brightness });
+                            output.send('noteon', { note: j + 36, velocity: m, channel: 0 });
+                        }
+
+                        if (faderbuttons == "LO") {//display faders lower buttons 
+                            if (obj.itemGroups[0].items[i][0].isRun == 1) {
+                                m = f3;
+                            } else if ((obj.itemGroups[0].items[i][0].i.c) == "#000000") {
+                                m = f1;
+                            } else { m = f2; }
+
+                            if (ledmatrix[j - 64] != m) {
+                                ledmatrix[j - 64] = m;
+                                output.send('noteon', { note: j - 64, velocity: m, channel: brightness });
+                            }
+
+                            if (m == f2 || m == f3) m = f2;
+
+                            if (ledmatrix[j - 56] != m) {
+                                ledmatrix[j - 56] = m;
+                                output.send('noteon', { note: j - 56, velocity: m, channel: brightness });
+                            }
                         }
                         j = j - 1;
                     }
-                    for (i = 0; i < 8; i++) {
-                        if (obj.itemGroups[2].items[i][0].isRun == 1) {
-                            m = c3;
-                        } else if ((obj.itemGroups[2].items[i][0].i.c) == "#000000") {
-                            m = c1;
-                        } else { m = c2; }
-                        if (ledmatrix[j] != m) {
-                            ledmatrix[j] = m;
-                            output.send('noteon', { note: j, velocity: m, channel: brightness });
+
+                    if (faderbuttons == "HI") {
+                        j = 15;
+                        for (i = 0; i < 8; i++) {//upper fader exec
+
+                            if (obj.itemGroups[1].items[i][0].isRun == 1) {
+                                m = c3;
+                            } else if ((obj.itemGroups[1].items[i][0].i.c) == "#000000") {
+                                m = c1;
+                            } else { m = c2; }
+                            if (ledmatrix[j] != m) {
+                                ledmatrix[j] = m;
+                                output.send('noteon', { note: j, velocity: m, channel: brightness });
+                            }
+                            j = j - 1;
                         }
-                        j = j - 1;
+                        for (i = 0; i < 8; i++) {
+                            if (obj.itemGroups[2].items[i][0].isRun == 1) {
+                                m = c3;
+                            } else if ((obj.itemGroups[2].items[i][0].i.c) == "#000000") {
+                                m = c1;
+                            } else { m = c2; }
+                            if (ledmatrix[j] != m) {
+                                ledmatrix[j] = m;
+                                output.send('noteon', { note: j, velocity: m, channel: brightness });
+                            }
+                            j = j - 1;
+                        }
                     }
                 }
             }
