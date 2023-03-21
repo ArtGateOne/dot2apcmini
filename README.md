@@ -44,15 +44,15 @@ for mk2 u can select 2 color modes, and led brightnes
 
 
 //config 
-wing = 1;   //set wing 1 or 2
+wing = 0;   //set wing 1 or 2, or code fader default is -0
 
-page = 1;   //set page select mode - 0 - off, 1 - only exec buttons, 2 - exec buttons and faders together
+pageselect = 1;   //set page select mode - 0 - off, 1 - only exec buttons, 2 - exec buttons and faders together
 
 midi_in = 'APC mini mk2 0';     //set correct midi in device name
 
 midi_out = 'APC mini mk2 1';    //set correct midi out device name
 
-brightness = 6;     //led brightness 0-6
+brightness = 4;     //led brightness 0-6
 
 darkmode = 0;   //new color mode 1 - ON , 0 - OFF
 
