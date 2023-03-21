@@ -40,13 +40,13 @@ midi_out = 'APC MINI 1';    //set correct midi out device name
 
 -----
 
-for mk2 u can select 2 color modes, and led brightnes
+for mk2 u can select 2 color modes, and led brightness
 
 
 //config 
 
 
-wing = 0;   //set wing 1 or 2, or code fader default is -0
+wing = 0;   //select wing 1 or 2, or code fader 0
 
 pageselect = 1;   //set page select mode - 0 - off, 1 - only exec buttons, 2 - exec buttons and faders together
 
