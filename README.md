@@ -44,6 +44,8 @@ for mk2 u can select 2 color modes, and led brightnes
 
 
 //config 
+
+
 wing = 0;   //set wing 1 or 2, or code fader default is -0
 
 pageselect = 1;   //set page select mode - 0 - off, 1 - only exec buttons, 2 - exec buttons and faders together
