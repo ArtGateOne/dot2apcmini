@@ -1,6 +1,6 @@
 {
   "name": "dot2apcmini2",
-  "version": "1.0.2",
+  "version": "1.4.0",
   "description": "none",
   "main": "dot2apcmini2.js",
   "scripts": {
@@ -16,7 +16,7 @@
   "author": "KK",
   "license": "ISC",
   "dependencies": {
-    "easymidi": "^2.0.5",
+    "easymidi": "^3.0.1",
     "websocket": "^1.0.34"
   }
 }

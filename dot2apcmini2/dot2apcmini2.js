@@ -1,3 +1,4 @@
+//dot2 Akai APC mini control code v 1.4 by ArtGateOne
 var easymidi = require('easymidi');
 var W3CWebSocket = require('websocket')
     .w3cwebsocket;
@@ -7,8 +8,8 @@ var client = new W3CWebSocket('ws://localhost:80/'); //U can change localhost(12
 //config 
 wing = 1;   //set wing 1 or 2
 page = 1;   //set page select mode - 0-off, 1-only exec buttons(5), 2-exec buttons and faders together(5)
-midi_in = 'APC MINI 0';     //set correct midi in device name
-midi_out = 'APC MINI 1';    //set correct midi out device name
+midi_in = 'APC MINI';     //set correct midi in device name
+midi_out = 'APC MINI';    //set correct midi out device name
 
 
 //global variables

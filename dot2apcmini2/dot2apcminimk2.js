@@ -1,4 +1,4 @@
-//dot2 Akai APC mini mk2 control code v 0.4 by ArtGateOne
+//dot2 Akai APC mini mk2 control code v 1.4 by ArtGateOne
 
 var easymidi = require('easymidi');
 var W3CWebSocket = require('websocket')
@@ -9,8 +9,8 @@ var client = new W3CWebSocket('ws://localhost:80/'); //U can change localhost(12
 //config 
 wing = 0;   //set wing 0(core fader + b-wing 1), 1(f-wing 1 + b-wing 1), 2(f-wing 2 + b-wing 2),
 pageselect = 1;   //set page select mode - 0 - off, 1 - only exec buttons, 2 - exec buttons and faders together
-midi_in = 'APC mini mk2 0';     //set correct midi in device name
-midi_out = 'APC mini mk2 1';    //set correct midi out device name
+midi_in = 'APC mini mk2';     //set correct midi in device name
+midi_out = 'APC mini mk2';    //set correct midi out device name
 brightness = 4;     //led brightness 0-6
 darkmode = 0;   //new color mode 1 - ON , 0 - OFF
 colorpage = 5;  //select page to display colors (1- 5), 0 = off
