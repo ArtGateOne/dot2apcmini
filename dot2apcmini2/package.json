@@ -1,6 +1,6 @@
 {
   "name": "dot2apcmini2",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "none",
   "main": "dot2apcmini2.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "keywords": [
     "none"
   ],
-  "author": "KK",
+  "author": "ArtGateOne",
   "license": "ISC",
   "dependencies": {
     "easymidi": "^3.0.1",

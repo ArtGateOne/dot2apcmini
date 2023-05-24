@@ -1,4 +1,4 @@
-//dot2 Akai APC mini mk2 control code v 1.4 by ArtGateOne
+//dot2 Akai APC mini mk2 control code v 1.5 by ArtGateOne
 
 var easymidi = require('easymidi');
 var W3CWebSocket = require('websocket')
@@ -14,6 +14,7 @@ midi_out = 'APC mini mk2';    //set correct midi out device name
 brightness = 4;     //led brightness 0-6
 darkmode = 0;   //new color mode 1 - ON , 0 - OFF
 colorpage = 5;  //select page to display colors (1- 5), 0 = off
+autocolor = 1;  //Get color from Executor name
 
 
 
@@ -31,6 +32,9 @@ var f2 = 5; //color fader button OFF
 var f3 = 21; //color fader button ON
 //var palete = [53, 45, 37, 21, 13, 9, 5, 3]; //palete colors <----
 var palete = [53, 45, 37, 21, 13, 96, 5, 3]; //palete colors <----
+
+var colornames = ['Black', 'White', 'Red', 'Orange', 'Yellow', 'Fern Green', 'Green', 'Sea Green', 'Cyan', 'Lavender', 'Blue', 'Violet', 'Magenta', 'Pink', 'CTO', 'CTB', 'Grey', 'Deep Red'];
+var colorcodes = [      0,       3,     5,        9,       13,           17,      21,          25,     33,         41,     45,       49,        53,     57,   108,   93,      1,        121];
 
 if (darkmode === 1) {
     var c1 = 0;
@@ -425,18 +429,11 @@ client.onclose = function () {
 
 client.onmessage = function (e) {
 
-
-    request = request + 1;
-    //console.log(request);
     if (request >= 9) {
         client.send('{"session":' + session + '}');
         client.send('{"requestType":"getdata","data":"set","session":' + session + ',"maxRequests":1}');
         request = 0;
     }
-
-
-
-
 
     if (typeof e.data == 'string') {
         //console.log("Received: '" + e.data + "'");
@@ -503,7 +500,7 @@ client.onmessage = function (e) {
 
         else if (obj.responseType == "playbacks") {
 
-
+            request++;
 
             if (obj.responseSubType == 3) {
 
@@ -535,7 +532,61 @@ client.onmessage = function (e) {
                             j = j - 1;
                         }
                     }
-                } else {
+                }
+
+                else if (autocolor == 1) {
+
+                    for (k = 0; k < 6; k++) {
+                        for (i = 0; i < 8; i++) {
+                            //var m = palete[i];
+                            var m = findColorIndex(obj.itemGroups[k].items[i][0].tt.t);
+                            if (m != -1) {
+                                m = colorcodes[m];
+                            }
+
+                            
+
+                            if (obj.itemGroups[k].items[i][0].isRun == 1) {
+                                channel = 8;
+                                if (m == -1) {
+                                    m = c3;
+                                    channel = brightness;
+                                }
+                                if (darkmode == 1) {
+                                    channel = brightness;
+                                }
+                            }
+
+                            else if ((obj.itemGroups[k].items[i][0].i.c) == "#000000") {
+                                if (m == -1) {
+                                    m = c1;
+                                }
+                                channel = 0;
+                            }
+
+                            else {
+                                channel = brightness;
+                                if (darkmode == 1) {
+                                    channel = 0;
+                                }
+                                if (m == -1) {
+                                    m = c2;
+                                    channel = brightness;
+                                }
+                            }
+
+                            if (ledmatrix[j] != m || ledvelocity[j] != channel) {
+                                ledmatrix[j] = m;
+                                ledvelocity[j] = channel;
+                                output.send('noteon', { note: j, velocity: m, channel: channel });
+                            }
+                            j = j - 1;
+                        }
+                    }
+                }
+
+                else {
+
                     for (k = 0; k < 6; k++) {
                         for (i = 0; i < 8; i++) {
                             var m = c1;
@@ -696,3 +747,10 @@ client.onmessage = function (e) {
         }
     }
 };
+
+function findColorIndex(colorName) {
+    //const names = ['Black', 'White', 'Red', 'Orange', 'Yellow', 'Fern Green', 'Green', 'Sea Green', 'Cyan', 'Lavender', 'Blue', 'Violet', 'Magenta', 'Pink', 'CTO', 'CTB', 'Grey', 'Deep Red'];
+    //const index = names.indexOf(colorName);
+    const index = colornames.indexOf(colorName);
+    return index;
+}
