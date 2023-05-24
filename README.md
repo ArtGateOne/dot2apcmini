@@ -23,6 +23,7 @@ if u have akai apc mini mk2
 
 node dot2apcminimk2.js
 
+
 --------------------
 
 Edit file to config
@@ -33,9 +34,9 @@ wing = 1;   //set wing 1 or 2
 
 page = 0;   //set page select mode - 0-off, 1-only exec buttons(5), 2-exec buttons and faders together(5)
 
-midi_in = 'APC MINI 0';     //set correct midi in device name
+midi_in = 'APC MINI';     //set correct midi in device name
 
-midi_out = 'APC MINI 1';    //set correct midi out device name
+midi_out = 'APC MINI';    //set correct midi out device name
 
 
 -----
@@ -50,14 +51,16 @@ wing = 0;   //select wing 1 or 2, or code fader 0
 
 pageselect = 1;   //set page select mode - 0 - off, 1 - only exec buttons, 2 - exec buttons and faders together
 
-midi_in = 'APC mini mk2 0';     //set correct midi in device name
+midi_in = 'APC mini mk2';     //set correct midi in device name
 
-midi_out = 'APC mini mk2 1';    //set correct midi out device name
+midi_out = 'APC mini mk2';    //set correct midi out device name
 
 brightness = 4;     //led brightness 0-6
 
 darkmode = 0;   //new color mode 1 - ON , 0 - OFF
 
-colorpage = 5;  //select page to display colors (1- 5), 0 = off
+colorpage = 5;  //select page to display colors palete (1- 5), 0 = off
+
+autocolor = 1;  //Get color from Executor name
 
 
