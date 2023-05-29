@@ -1,4 +1,4 @@
-//dot2 Akai APC mini mk2 control code v 1.5 by ArtGateOne
+//dot2 Akai APC mini mk2 control code v 1.5.1 by ArtGateOne
 
 var easymidi = require('easymidi');
 var W3CWebSocket = require('websocket')
@@ -51,6 +51,7 @@ var pageIndex2 = 0; //default page for faders (0 = page 1, 1 = page 2 .....) if 
 var channel = 6;
 var faderbuttons = "LO";
 var request = 0;
+var interval_on = 0;
 var session = 0;
 var exec = JSON.parse('{"index":[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,4,3,2,1,0,66,66,66,66,66],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,12,11,10,9,8,7,6,66],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,21,20,19,18,17,16,15,14,66]]}');
 var ledmatrix = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 9, 9, 9, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 9, 0, 9, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -478,7 +479,10 @@ client.onmessage = function (e) {
 
 
         if (obj.responseType == "login" && obj.result == true) {
-            setInterval(interval, 100);//80
+            if (interval_on == 0) {
+                interval_on = 1;
+                setInterval(interval, 100);//80
+            }
             console.log("...LOGGED");
             console.log("SESSION " + session);
         }
