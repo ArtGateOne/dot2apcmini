@@ -256,7 +256,7 @@ input.on('noteon', function (msg) {
             output.send('noteon', { note: (msg.note), velocity: 1, channel: 0 });
         }
         else if (pageselect == 2) {
-            output.send('noteon', { note: (pageIndex + 82), velocity: 0, channel: 0 });
+            output.send('noteon', { note: (pageIndex + 112), velocity: 0, channel: 0 });
             pageIndex = msg.note - 112;
             pageIndex2 = msg.note - 112;
             output.send('noteon', { note: (msg.note), velocity: 1, channel: 0 });
