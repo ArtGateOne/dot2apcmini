@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.malighting.de/grandma2/xml/MA" xsi:schemaLocation="http://schemas.malighting.de/grandma2/xml/MA http://schemas.malighting.de/grandma2/xml/3.9.0/MA.xsd" major_vers="3" minor_vers="9" stream_vers="0">
+	<Info datetime="2023-09-20T18:06:35" showfile="color_palete_page5" />
+	<Macro index="49" name="Auto Create Color Presets 16">
+		<Appearance Color="3f9fff" />
+		<Macroline index="0">
+			<text>ClearAll</text>
+		</Macroline>
+		<Macroline index="1">
+			<text>Group 1 Thru</text>
+		</Macroline>
+		<Macroline index="2">
+			<text>At Gel &quot;MA colors&quot;.&quot;1&quot;; Store Preset 4.1 /s &quot;White&quot;</text>
+		</Macroline>
+		<Macroline index="3">
+			<text>At Gel &quot;MA colors&quot;.&quot;2&quot;; Store Preset 4.2 /s &quot;Red&quot;</text>
+		</Macroline>
+		<Macroline index="4">
+			<text>At Gel &quot;MA colors&quot;.&quot;3&quot;; Store Preset 4.3 /s &quot;Orange&quot;</text>
+		</Macroline>
+		<Macroline index="5">
+			<text>At Gel &quot;MA colors&quot;.&quot;4&quot;; Store Preset 4.4 /s &quot;Yellow&quot;</text>
+		</Macroline>
+		<Macroline index="6">
+			<text>At Gel &quot;MA colors&quot;.&quot;5&quot;; Store Preset 4.5 /s &quot;Fern Green&quot;</text>
+		</Macroline>
+		<Macroline index="7">
+			<text>At Gel &quot;MA colors&quot;.&quot;6&quot;; Store Preset 4.6 /s &quot;Green&quot;</text>
+		</Macroline>
+		<Macroline index="8">
+			<text>At Gel &quot;MA colors&quot;.&quot;7&quot;; Store Preset 4.7 /s &quot;Sea Green&quot;</text>
+		</Macroline>
+		<Macroline index="9">
+			<text>At Gel &quot;MA colors&quot;.&quot;8&quot;; Store Preset 4.8 /s &quot;Cyan&quot;</text>
+		</Macroline>
+		<Macroline index="10">
+			<text>At Gel &quot;MA colors&quot;.&quot;9&quot;; Store Preset 4.9 /s &quot;Lavender&quot;</text>
+		</Macroline>
+		<Macroline index="11">
+			<text>At Gel &quot;MA colors&quot;.&quot;10&quot;; Store Preset 4.10 /s &quot;Blue&quot;</text>
+		</Macroline>
+		<Macroline index="12">
+			<text>At Gel &quot;MA colors&quot;.&quot;11&quot;; Store Preset 4.11 /s &quot;Violet&quot;</text>
+		</Macroline>
+		<Macroline index="13">
+			<text>At Gel &quot;MA colors&quot;.&quot;12&quot;; Store Preset 4.12 /s &quot;Magenta&quot;</text>
+		</Macroline>
+		<Macroline index="14">
+			<text>At Gel &quot;MA colors&quot;.&quot;13&quot;; Store Preset 4.13 /s &quot;Pink&quot;</text>
+		</Macroline>
+		<Macroline index="15">
+			<text>Attribute ColorRGB1 At 0; Attribute ColorRGB2 At 0; Attribute ColorRGB3 At 0; Attribute ColorRGB4 At 0; Attribute ColorRGB5 At 0; Store Preset 4.14 /s &quot;Black&quot; /u</text>
+		</Macroline>
+		<Macroline index="16">
+			<text>At Gel &quot;Lee&quot;.&quot;204&quot;; Store Preset 4.15 /s &quot;CTO&quot;</text>
+		</Macroline>
+		<Macroline index="17">
+			<text>At Gel &quot;Lee&quot;.&quot;201&quot;; Store Preset 4.16 /s &quot;CTB&quot;</text>
+		</Macroline>
+		<Macroline index="18">
+			<text>At Gel &quot;MA colors&quot;.&quot;1&quot;; Store Preset 4.20 /s &quot;Low&quot;</text>
+		</Macroline>
+		<Macroline index="19">
+			<text>At Gel &quot;MA colors&quot;.&quot;10&quot;; Store Preset 4.21 /s &quot;High&quot;</text>
+		</Macroline>
+		<Macroline index="20">
+			<text>ClearAll</text>
+		</Macroline>
+	</Macro>
+</MA>

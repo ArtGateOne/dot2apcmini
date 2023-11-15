@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.malighting.de/grandma2/xml/MA" xsi:schemaLocation="http://schemas.malighting.de/grandma2/xml/MA http://schemas.malighting.de/grandma2/xml/3.9.0/MA.xsd" major_vers="3" minor_vers="9" stream_vers="0">
+	<Info datetime="2023-09-20T18:06:41" showfile="color_palete_page5" />
+	<Macro index="52" name="Auto Create Color RGB Presets 24">
+		<Appearance Color="3f9fff" />
+		<Macroline index="0">
+			<text>ClearAll</text>
+		</Macroline>
+		<Macroline index="1">
+			<text>Group 1 Thru</text>
+		</Macroline>
+		<Macroline index="2">
+			<text>Attribute ColorRGB1 At 100; Attribute ColorRGB2 At 0; Attribute ColorRGB3 At 0; Store Preset 4.17 /s &quot;Red&quot;</text>
+		</Macroline>
+		<Macroline index="3">
+			<text>Attribute ColorRGB1 At 100; Attribute ColorRGB2 At 25; Attribute ColorRGB3 At 0; Store Preset 4.18 /s &quot;Vermilion&quot;</text>
+		</Macroline>
+		<Macroline index="4">
+			<text>Attribute ColorRGB1 At 100; Attribute ColorRGB2 At 50; Attribute ColorRGB3 At 0; Store Preset 4.19 /s &quot;Orange&quot;</text>
+		</Macroline>
+		<Macroline index="5">
+			<text>Attribute ColorRGB1 At 100; Attribute ColorRGB2 At 75; Attribute ColorRGB3 At 0; Store Preset 4.20 /s &quot;Amber&quot;</text>
+		</Macroline>
+		<Macroline index="6">
+			<text>Attribute ColorRGB1 At 100; Attribute ColorRGB2 At 100; Attribute ColorRGB3 At 0; Store Preset 4.21 /s &quot;Yellow&quot;</text>
+		</Macroline>
+		<Macroline index="7">
+			<text>Attribute ColorRGB1 At 75; Attribute ColorRGB2 At 100; Attribute ColorRGB3 At 0; Store Preset 4.22 /s &quot;Lime&quot;</text>
+		</Macroline>
+		<Macroline index="8">
+			<text>Attribute ColorRGB1 At 50; Attribute ColorRGB2 At 100; Attribute ColorRGB3 At 0; Store Preset 4.23 /s &quot;Chartreuse&quot;</text>
+		</Macroline>
+		<Macroline index="9">
+			<text>Attribute ColorRGB1 At 25; Attribute ColorRGB2 At 100; Attribute ColorRGB3 At 0; Store Preset 4.24 /s &quot;Harlequin&quot;</text>
+		</Macroline>
+		<Macroline index="10">
+			<text>Attribute ColorRGB1 At 0; Attribute ColorRGB2 At 100; Attribute ColorRGB3 At 0; Store Preset 4.25 /s &quot;Green&quot;</text>
+		</Macroline>
+		<Macroline index="11">
+			<text>Attribute ColorRGB1 At 0; Attribute ColorRGB2 At 100; Attribute ColorRGB3 At 25; Store Preset 4.26 /s &quot;Erin&quot;</text>
+		</Macroline>
+		<Macroline index="12">
+			<text>Attribute ColorRGB1 At 0; Attribute ColorRGB2 At 100; Attribute ColorRGB3 At 50; Store Preset 4.27 /s &quot;Spring Green&quot;</text>
+		</Macroline>
+		<Macroline index="13">
+			<text>Attribute ColorRGB1 At 0; Attribute ColorRGB2 At 100; Attribute ColorRGB3 At 75; Store Preset 4.28 /s &quot;Aquamarine&quot;</text>
+		</Macroline>
+		<Macroline index="14">
+			<text>Attribute ColorRGB1 At 0; Attribute ColorRGB2 At 100; Attribute ColorRGB3 At 100; Store Preset 4.29 /s &quot;Cyan&quot;</text>
+		</Macroline>
+		<Macroline index="15">
+			<text>Attribute ColorRGB1 At 0; Attribute ColorRGB2 At 75; Attribute ColorRGB3 At 100; Store Preset 4.30 /s &quot;Capri&quot;</text>
+		</Macroline>
+		<Macroline index="16">
+			<text>Attribute ColorRGB1 At 0; Attribute ColorRGB2 At 50; Attribute ColorRGB3 At 100; Store Preset 4.31 /s &quot;Azure&quot;</text>
+		</Macroline>
+		<Macroline index="17">
+			<text>Attribute ColorRGB1 At 0; Attribute ColorRGB2 At 25; Attribute ColorRGB3 At 100; Store Preset 4.32 /s &quot;Cerulean&quot;</text>
+		</Macroline>
+		<Macroline index="18">
+			<text>Attribute ColorRGB1 At 0; Attribute ColorRGB2 At 0; Attribute ColorRGB3 At 100; Store Preset 4.33 /s &quot;Blue&quot;</text>
+		</Macroline>
+		<Macroline index="19">
+			<text>Attribute ColorRGB1 At 25; Attribute ColorRGB2 At 0; Attribute ColorRGB3 At 100; Store Preset 4.34 /s &quot;Indigo&quot;</text>
+		</Macroline>
+		<Macroline index="20">
+			<text>Attribute ColorRGB1 At 50; Attribute ColorRGB2 At 0; Attribute ColorRGB3 At 100; Store Preset 4.35 /s &quot;Violet&quot;</text>
+		</Macroline>
+		<Macroline index="21">
+			<text>Attribute ColorRGB1 At 75; Attribute ColorRGB2 At 0; Attribute ColorRGB3 At 100; Store Preset 4.36 /s &quot;Purple&quot;</text>
+		</Macroline>
+		<Macroline index="22">
+			<text>Attribute ColorRGB1 At 100; Attribute ColorRGB2 At 0; Attribute ColorRGB3 At 100; Store Preset 4.37 /s &quot;Magenta&quot;</text>
+		</Macroline>
+		<Macroline index="23">
+			<text>Attribute ColorRGB1 At 100; Attribute ColorRGB2 At 0; Attribute ColorRGB3 At 75; Store Preset 4.38 /s &quot;Cerise&quot;</text>
+		</Macroline>
+		<Macroline index="24">
+			<text>Attribute ColorRGB1 At 100; Attribute ColorRGB2 At 0; Attribute ColorRGB3 At 50; Store Preset 4.39 /s &quot;Rose&quot;</text>
+		</Macroline>
+		<Macroline index="25">
+			<text>Attribute ColorRGB1 At 100; Attribute ColorRGB2 At 0; Attribute ColorRGB3 At 25; Store Preset 4.40 /s &quot;Crimson&quot;</text>
+		</Macroline>
+		<Macroline index="26">
+			<text>ClearAll</text>
+		</Macroline>
+	</Macro>
+</MA>

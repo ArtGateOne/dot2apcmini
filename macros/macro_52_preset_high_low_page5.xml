@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.malighting.de/grandma2/xml/MA" xsi:schemaLocation="http://schemas.malighting.de/grandma2/xml/MA http://schemas.malighting.de/grandma2/xml/3.9.0/MA.xsd" major_vers="3" minor_vers="9" stream_vers="0">
+	<Info datetime="2023-09-20T18:06:40" showfile="color_palete_page5" />
+	<Macro index="51" name="Preset High Low Page5">
+		<Macroline index="0">
+			<text>Assign Executor 5.708 Cue 1 /cmd=&quot;Copy Preset 4.1 At 4.20 /m&quot;</text>
+		</Macroline>
+		<Macroline index="1">
+			<text>Assign Executor 5.808 Cue 1 /cmd=&quot;Copy Preset 4.1 At 4.21 /m&quot;</text>
+		</Macroline>
+		<Macroline index="2">
+			<text>Assign Executor 5.707 Cue 1 /cmd=&quot;Copy Preset 4.2 At 4.20 /m&quot;</text>
+		</Macroline>
+		<Macroline index="3">
+			<text>Assign Executor 5.807 Cue 1 /cmd=&quot;Copy Preset 4.2 At 4.21 /m&quot;</text>
+		</Macroline>
+		<Macroline index="4">
+			<text>Assign Executor 5.706 Cue 1 /cmd=&quot;Copy Preset 4.3 At 4.20 /m&quot;</text>
+		</Macroline>
+		<Macroline index="5">
+			<text>Assign Executor 5.806 Cue 1 /cmd=&quot;Copy Preset 4.3 At 4.21 /m&quot;</text>
+		</Macroline>
+		<Macroline index="6">
+			<text>Assign Executor 5.705 Cue 1 /cmd=&quot;Copy Preset 4.4 At 4.20 /m&quot;</text>
+		</Macroline>
+		<Macroline index="7">
+			<text>Assign Executor 5.805 Cue 1 /cmd=&quot;Copy Preset 4.4 At 4.21 /m&quot;</text>
+		</Macroline>
+		<Macroline index="8">
+			<text>Assign Executor 5.704 Cue 1 /cmd=&quot;Copy Preset 4.6 At 4.20 /m&quot;</text>
+		</Macroline>
+		<Macroline index="9">
+			<text>Assign Executor 5.804 Cue 1 /cmd=&quot;Copy Preset 4.6 At 4.21 /m&quot;</text>
+		</Macroline>
+		<Macroline index="10">
+			<text>Assign Executor 5.703 Cue 1 /cmd=&quot;Copy Preset 4.8 At 4.20 /m&quot;</text>
+		</Macroline>
+		<Macroline index="11">
+			<text>Assign Executor 5.803 Cue 1 /cmd=&quot;Copy Preset 4.8 At 4.21 /m&quot;</text>
+		</Macroline>
+		<Macroline index="12">
+			<text>Assign Executor 5.702 Cue 1 /cmd=&quot;Copy Preset 4.10 At 4.20 /m&quot;</text>
+		</Macroline>
+		<Macroline index="13">
+			<text>Assign Executor 5.802 Cue 1 /cmd=&quot;Copy Preset 4.10 At 4.21 /m&quot;</text>
+		</Macroline>
+		<Macroline index="14">
+			<text>Assign Executor 5.701 Cue 1 /cmd=&quot;Copy Preset 4.12 At 4.20 /m&quot;</text>
+		</Macroline>
+		<Macroline index="15">
+			<text>Assign Executor 5.801 Cue 1 /cmd=&quot;Copy Preset 4.12 At 4.21 /m&quot;</text>
+		</Macroline>
+	</Macro>
+</MA>

@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MA xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.malighting.de/grandma2/xml/MA" xsi:schemaLocation="http://schemas.malighting.de/grandma2/xml/MA http://schemas.malighting.de/grandma2/xml/3.9.0/MA.xsd" major_vers="3" minor_vers="9" stream_vers="0">
+	<Info datetime="2023-09-20T18:06:38" showfile="color_palete_page5" />
+	<Macro index="50" name="Apcmini Palete Page5">
+		<Macroline index="0">
+			<text>ClearAll</text>
+		</Macroline>
+		<Macroline index="1">
+			<text>Group 1</text>
+		</Macroline>
+		<Macroline index="2">
+			<text>At Preset 4.1; Store Executor 5.308 &quot;White&quot;</text>
+		</Macroline>
+		<Macroline index="3">
+			<text>At Preset 4.2; Store Executor 5.307 &quot;Red&quot;</text>
+		</Macroline>
+		<Macroline index="4">
+			<text>At Preset 4.3; Store Executor 5.306 &quot;Orange&quot;</text>
+		</Macroline>
+		<Macroline index="5">
+			<text>At Preset 4.4; Store Executor 5.305 &quot;Yellow&quot;</text>
+		</Macroline>
+		<Macroline index="6">
+			<text>At Preset 4.6; Store Executor 5.304 &quot;Green&quot;</text>
+		</Macroline>
+		<Macroline index="7">
+			<text>At Preset 4.8; Store Executor 5.303 &quot;Cyan&quot;</text>
+		</Macroline>
+		<Macroline index="8">
+			<text>At Preset 4.10; Store Executor 5.302 &quot;Blue&quot;</text>
+		</Macroline>
+		<Macroline index="9">
+			<text>At Preset 4.12; Store Executor 5.301 &quot;Magenta&quot;</text>
+		</Macroline>
+		<Macroline index="10">
+			<text>Group 2</text>
+		</Macroline>
+		<Macroline index="11">
+			<text>At Preset 4.1; Store Executor 5.408 &quot;White&quot;</text>
+		</Macroline>
+		<Macroline index="12">
+			<text>At Preset 4.2; Store Executor 5.407 &quot;Red&quot;</text>
+		</Macroline>
+		<Macroline index="13">
+			<text>At Preset 4.3; Store Executor 5.406 &quot;Orange&quot;</text>
+		</Macroline>
+		<Macroline index="14">
+			<text>At Preset 4.4; Store Executor 5.405 &quot;Yellow&quot;</text>
+		</Macroline>
+		<Macroline index="15">
+			<text>At Preset 4.6; Store Executor 5.404 &quot;Green&quot;</text>
+		</Macroline>
+		<Macroline index="16">
+			<text>At Preset 4.8; Store Executor 5.403 &quot;Cyan&quot;</text>
+		</Macroline>
+		<Macroline index="17">
+			<text>At Preset 4.10; Store Executor 5.402 &quot;Blue&quot;</text>
+		</Macroline>
+		<Macroline index="18">
+			<text>At Preset 4.12; Store Executor 5.401 &quot;Magenta&quot;</text>
+		</Macroline>
+		<Macroline index="19">
+			<text>Group 3</text>
+		</Macroline>
+		<Macroline index="20">
+			<text>At Preset 4.1; Store Executor 5.508 &quot;White&quot;</text>
+		</Macroline>
+		<Macroline index="21">
+			<text>At Preset 4.2; Store Executor 5.507 &quot;Red&quot;</text>
+		</Macroline>
+		<Macroline index="22">
+			<text>At Preset 4.3; Store Executor 5.506 &quot;Orange&quot;</text>
+		</Macroline>
+		<Macroline index="23">
+			<text>At Preset 4.4; Store Executor 5.505 &quot;Yellow&quot;</text>
+		</Macroline>
+		<Macroline index="24">
+			<text>At Preset 4.6; Store Executor 5.504 &quot;Green&quot;</text>
+		</Macroline>
+		<Macroline index="25">
+			<text>At Preset 4.8; Store Executor 5.503 &quot;Cyan&quot;</text>
+		</Macroline>
+		<Macroline index="26">
+			<text>At Preset 4.10; Store Executor 5.502 &quot;Blue&quot;</text>
+		</Macroline>
+		<Macroline index="27">
+			<text>At Preset 4.12; Store Executor 5.501 &quot;Magenta&quot;</text>
+		</Macroline>
+		<Macroline index="28">
+			<text>Group 4</text>
+		</Macroline>
+		<Macroline index="29">
+			<text>At Preset 4.1; Store Executor 5.608 &quot;White&quot;</text>
+		</Macroline>
+		<Macroline index="30">
+			<text>At Preset 4.2; Store Executor 5.607 &quot;Red&quot;</text>
+		</Macroline>
+		<Macroline index="31">
+			<text>At Preset 4.3; Store Executor 5.606 &quot;Orange&quot;</text>
+		</Macroline>
+		<Macroline index="32">
+			<text>At Preset 4.4; Store Executor 5.605 &quot;Yellow&quot;</text>
+		</Macroline>
+		<Macroline index="33">
+			<text>At Preset 4.6; Store Executor 5.604 &quot;Green&quot;</text>
+		</Macroline>
+		<Macroline index="34">
+			<text>At Preset 4.8; Store Executor 5.603 &quot;Cyan&quot;</text>
+		</Macroline>
+		<Macroline index="35">
+			<text>At Preset 4.10; Store Executor 5.602 &quot;Blue&quot;</text>
+		</Macroline>
+		<Macroline index="36">
+			<text>At Preset 4.12; Store Executor 5.601 &quot;Magenta&quot;</text>
+		</Macroline>
+		<Macroline index="37">
+			<text>Group 5</text>
+		</Macroline>
+		<Macroline index="38">
+			<text>At Preset 4.1; Store Executor 5.708 &quot;White&quot;</text>
+		</Macroline>
+		<Macroline index="39">
+			<text>At Preset 4.2; Store Executor 5.707 &quot;Red&quot;</text>
+		</Macroline>
+		<Macroline index="40">
+			<text>At Preset 4.3; Store Executor 5.706 &quot;Orange&quot;</text>
+		</Macroline>
+		<Macroline index="41">
+			<text>At Preset 4.4; Store Executor 5.705 &quot;Yellow&quot;</text>
+		</Macroline>
+		<Macroline index="42">
+			<text>At Preset 4.6; Store Executor 5.704 &quot;Green&quot;</text>
+		</Macroline>
+		<Macroline index="43">
+			<text>At Preset 4.8; Store Executor 5.703 &quot;Cyan&quot;</text>
+		</Macroline>
+		<Macroline index="44">
+			<text>At Preset 4.10; Store Executor 5.702 &quot;Blue&quot;</text>
+		</Macroline>
+		<Macroline index="45">
+			<text>At Preset 4.12; Store Executor 5.701 &quot;Magenta&quot;</text>
+		</Macroline>
+		<Macroline index="46">
+			<text>Group 6</text>
+		</Macroline>
+		<Macroline index="47">
+			<text>At Preset 4.1; Store Executor 5.808 &quot;White&quot;</text>
+		</Macroline>
+		<Macroline index="48">
+			<text>At Preset 4.2; Store Executor 5.807 &quot;Red&quot;</text>
+		</Macroline>
+		<Macroline index="49">
+			<text>At Preset 4.3; Store Executor 5.806 &quot;Orange&quot;</text>
+		</Macroline>
+		<Macroline index="50">
+			<text>At Preset 4.4; Store Executor 5.805 &quot;Yellow&quot;</text>
+		</Macroline>
+		<Macroline index="51">
+			<text>At Preset 4.6; Store Executor 5.804 &quot;Green&quot;</text>
+		</Macroline>
+		<Macroline index="52">
+			<text>At Preset 4.8; Store Executor 5.803 &quot;Cyan&quot;</text>
+		</Macroline>
+		<Macroline index="53">
+			<text>At Preset 4.10; Store Executor 5.802 &quot;Blue&quot;</text>
+		</Macroline>
+		<Macroline index="54">
+			<text>At Preset 4.12; Store Executor 5.801 &quot;Magenta&quot;</text>
+		</Macroline>
+		<Macroline index="55">
+			<text>ClearAll</text>
+		</Macroline>
+	</Macro>
+</MA>
