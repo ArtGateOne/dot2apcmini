@@ -3,6 +3,8 @@ nodejs code to control dot2 software use Akai APCmini midi controller, and Akai 
 
 I (hfuerst) need further development for more colors labled in dot2 and played out on APCmini MK2. So i did it. Now, there are even more ideas. Maybe i will do them too, sometimes.
 
+![Example of Position and FX-Colors] (https://github.com/hfuerst/dot2apcmini2/blob/main/images/v1.6.000-ZS-Wing2-Page2.jpg)
+
 ----------------------
 ## Install
 - Download and install NODEJS version 14.17 from https://nodejs.org/dist/v14.17.0/node-v14.17.0-x64.msi
