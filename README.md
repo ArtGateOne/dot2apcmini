@@ -18,19 +18,21 @@ nodejs code to control dot2 software use Akai APCmini midi controller, and akai 
 --------------------
 ## Configuration
 Edit file to config
-
-Find in dot2apcmini2.js :
+-----
+Find in `dot2apcmini2.js` :  
+```
 //config  
 
 wing = 1;   //set wing 1 or 2  
 page = 0;   //set page select mode - 0-off, 1-only exec buttons(5), 2-exec buttons and faders together(5)  
 midi_in = 'APC MINI';     //set correct midi in device name  
 midi_out = 'APC MINI';    //set correct midi out device name  
-
+```
 -----
 for mk2 u can select 2 color modes, and led brightness
 
-Find in dot2apcmini2.js :
+Find in `dot2apcmini2.js` :  
+```
 //config
 
 wing = 0;   //select wing 1 or 2, or code fader 0  
@@ -41,7 +43,7 @@ brightness = 4;     //led brightness 0-6
 darkmode = 0;   //new color mode 1 - ON , 0 - OFF  
 colorpage = 5;  //select page to display colors palete (1- 5), 0 = off  
 autocolor = 1;  //Get color from Executor name  
-
+```
 -----
 ### Macros
 
