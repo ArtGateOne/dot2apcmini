@@ -13,7 +13,7 @@ I (hfuerst) need further development for more colors labled in dot2 and played o
 - Fader simply do that they shall do. There is an issue with Faders by changing Wing if not at Zero, becase they have no Motors. So I decided to use then always on Page 1 by setting mode 'pageselect = 1;' in file config. look below or in file for further description.
 
 ### Pages and Wing-Numbers
-- Select Wing in Config or (NEW in v1.6.0) Change Wing 1-2 with Button 'DRUM'
+- Select Wing in Config or (NEW in v1.6.0) Change Wing 1-2 with Button 'DRUM' (if file config: wingselect = 1;)
 - Select Page 1-5 with upper 5 Buttons: 1- 'CLIP STOP', 2 - 'SOLO', 3 - 'MUTE', 4 - 'REC ARM', 5 - 'SELECT'. This is Working for 
 
 ### Colors
