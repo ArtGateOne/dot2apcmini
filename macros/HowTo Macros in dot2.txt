@@ -1,0 +1,17 @@
+### Macros
+
+Copy this Macros to your dot2 Macro Folder.  
+In Windows:  
+`C:\ProgramData\MA Lighting Technologies\dot2\dot2_V_1.9\macros`
+
+in dot2 Console enter Import-Command for each Macro. It is simular to GrandMA 2.  
+Have a Look at:  
+https://help2.malighting.com/Page/grandMA2/ei_import_commandline/en/3.3 
+Example:  
+`Import "macro_51_apcmini_palete_page5" At Macro 51`
+
+in dot2 Console enter Export-Command for each Macro. It is simular to GrandMA 2.  
+Have a Look at:  
+https://help2.malighting.com/Page/grandMA2/ei_export_commandline/en/3.3
+
+
