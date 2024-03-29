@@ -19,11 +19,13 @@ I (hfuerst) need further development for more colors labled in dot2 and played o
 ### Colors
 There are default Colors for Executor Buttons. Off = unused, warm = used but off, green = on.  
 
-New Options (in file-config):    
+New Options (in file-config):
+
 'autocolor   = 1;'         
 Selects APCmini-Button-Colors from dot2 Executor Labels    
 (OLD since v1.5.0) if Executor-Labels are exact form dot2 Color Swatchbook 'MA colors'.  
 (NEW since v1.6.0) if Executor-Labels **include** a lot of keywords or shortcuts like Effect-Shortcuts, Position-Shortcuts, MA colors, DIN 47002 Shortcuts, IEC 60757 Shortcuts or Specials. At Shortcuts below 3 signs there must be a Space before or after the shortcut!!!     
+
 'activeblink = 1;'   (since v1.6.0)     
 Active Executors don't use default ON-color, now they blink in USED-Color if active. This is recommend for use with autocolor.
 
