@@ -14,7 +14,7 @@ I (hfuerst) need further development for more colors labled in dot2 and played o
 
 ### Pages and Wing-Numbers
 - Select Wing in Config or (NEW in v1.6.0) Change Wing 1-2 with Button 'DRUM' (if file config: wingselect = 1;)
-- Select Page 1-5 with upper 5 Buttons: 1- 'CLIP STOP', 2 - 'SOLO', 3 - 'MUTE', 4 - 'REC ARM', 5 - 'SELECT'. This is Working for 
+- Select Page 1-5 with upper 5 Buttons: 1- 'CLIP STOP', 2 - 'SOLO', 3 - 'MUTE', 4 - 'REC ARM', 5 - 'SELECT'. Depending on file config this is Working for Button-Wings only, and/or Fader-Wings
 
 ### Colors
 There are default Colors for Executor Buttons. Off = unused, warm = used but off, green = on.  
@@ -46,8 +46,10 @@ here Page 2 'SOLO' and upper Faderbuttons 'NOTE' is in use
 
 ### Run
 - run dot2 software
-- turn on webremote (password remote)
-- run from command prompt (win+R - cmd)
+- turn on webremote (password 'remote', don't change!)
+- run `START_APCminiMK2.bat`
+- Or run from command prompt (win+R - cmd)
+  - change directory to correct path (cd .....)
   - APCmini: `node dot2apcmini2.js`
   - APC mini MK2: `node dot2apcminimk2.js`
 
@@ -81,7 +83,41 @@ midi_out = 'APC mini mk2';    //set correct midi out device name
 brightness = 4;     //led brightness 0-6  
 darkmode = 0;   //new color mode 1 - ON , 0 - OFF  
 colorpage = 5;  //select page to display colors palete (1- 5), 0 = off  
-autocolor = 1;  //Get color from Executor name  
+autocolor = 1;  //Get color from Executor name
+
+
+var ipaddress = "localhost";   // You can change localhost(127.0.0.1) to Your console IP address
+// default Login:
+// username: remote
+// password: remote
+// password is md5-hashed, don't change it !!!
+//
+// https://www.md5hashgenerator.com/
+// 'remote' -> '2c18e486683a3db1e645ad8523223b72'
+
+wing          = 2;  //set wing 
+                    // 0(core fader + b-wing 1),
+                    // 1(f-wing 1 + b-wing 1),
+                    // 2(f-wing 2 + b-wing 2),
+
+wingselect    = 1;  //set wing select mode: 0 = off, 1 = on 
+                    //(Switch between wing 1 and 2 with 'DRUM'-Button)
+                    // Works not, if above selected wing = 0 (core fader) !!!
+                    // -> !!! Beta State !!! // ToDo HF
+
+pageselect    = 1;   //set page select mode - 0 - off, 1 - only exec buttons, 2 - exec buttons and faders together
+
+midi_in1      = 'APC mini mk2';     //set correct midi in device name  -> You can see available Devices after start
+midi_out1     = 'APC mini mk2';     //set correct midi out device name -> You can see available Devices after start
+midi_in2      = 'none';             // (none = not used)
+midi_out2     = 'none';             // (none = not used)
+
+brightness    = 6;  //led brightness 0-6 (default = 4, blink = 8) 
+darkmode      = 0;  //new color mode 1 - ON , 0 - OFF
+colorpage     = 0;  //select page to display colors (1- 5), default 0 = off (not needed with autocolor)
+autocolor     = 1;  //get color from Executor name (works actually not on Core-Faderbuttons)
+activeblink   = 1;  //on active Executor use: 0 -> Color3 (c3/f3), 1 -> Blink Color2 (c2/f2 = button OFF but used)
+
 ```
 -----
 ### Macros
