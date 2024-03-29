@@ -41,7 +41,7 @@ midi_out2     = 'none';             // (none = not used)
 brightness    = 6;  //led brightness 0-6 (default = 4, blink = 8) 
 darkmode      = 0;  //new color mode 1 - ON , 0 - OFF
 colorpage     = 0;  //select page to display colors (1- 5), default 0 = off (not needed with autocolor)
-autocolor     = 1;  //get color from Executor name (works not on Core-Faderbuttons)
+autocolor     = 1;  //get color from Executor name (works actually not on Core-Faderbuttons)
 activeblink   = 1;  //on active Executor use: 0 -> Color3 (c3/f3), 1 -> Blink Color2 (c2/f2 = button OFF but used)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ var colorNameCodes = [
     ['XPos', 75],   // Extra Position (mostly with Super Priority): 75 = intens Green
     ['Pos', 73],    // Normal Position: 73 = lightGreen
 
-    // Colors: 
+    // MA Colors: 
     // long Names must be first, because of Search-Algorithm
     // (shortcuts follow later)
     ['Black', 119],         // Blackout: 119 = lightCyanWhite
