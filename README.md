@@ -76,16 +76,6 @@ Find in `dot2apcminimk2.js` :
 ```
 //config
 
-wing = 0;   //select wing 1 or 2, or code fader 0  
-pageselect = 1;   //set page select mode - 0 - off, 1 - only exec buttons, 2 - exec buttons and faders together  
-midi_in = 'APC mini mk2';     //set correct midi in device name  
-midi_out = 'APC mini mk2';    //set correct midi out device name  
-brightness = 4;     //led brightness 0-6  
-darkmode = 0;   //new color mode 1 - ON , 0 - OFF  
-colorpage = 5;  //select page to display colors palete (1- 5), 0 = off  
-autocolor = 1;  //Get color from Executor name
-
-
 var ipaddress = "localhost";   // You can change localhost(127.0.0.1) to Your console IP address
 // default Login:
 // username: remote
