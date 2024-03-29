@@ -32,7 +32,7 @@ midi_out = 'APC MINI';    //set correct midi out device name
 -----
 for mk2 u can select 2 color modes, and led brightness
 
-Find in `dot2apcmini2.js` :  
+Find in `dot2apcminimk2.js` :  
 ```
 //config
 
