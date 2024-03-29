@@ -2,10 +2,10 @@
 nodejs code to control dot2 software use Akai APCmini midi controller, and akai apc mini mk2
 
 
-Download and instal NODEJS version 14.17 from https://nodejs.org/dist/v14.17.0/node-v14.17.0-x64.msi
+Download and install NODEJS version 14.17 from https://nodejs.org/dist/v14.17.0/node-v14.17.0-x64.msi
 
 
-Download my code.
+Download my code inclusive folder 'node_modules'.
 
 ----------------------
 
@@ -63,4 +63,14 @@ colorpage = 5;  //select page to display colors palete (1- 5), 0 = off
 
 autocolor = 1;  //Get color from Executor name
 
+-----
 
+Macros
+
+Copy this Macros to your dot2 Macro Folder.
+In Windows: 
+C:\ProgramData\MA Lighting Technologies\dot2\dot2_V_1.9\macros
+
+in dot2 Console enter Import-Command for each Macro.
+Example:
+Import "macro_51_apcmini_palete_page5" At Macro 51
