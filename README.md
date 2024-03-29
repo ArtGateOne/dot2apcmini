@@ -65,12 +65,12 @@ autocolor = 1;  //Get color from Executor name
 
 -----
 
-###Macros
+### Macros
 
 Copy this Macros to your dot2 Macro Folder.  
 In Windows:  
-C:\ProgramData\MA Lighting Technologies\dot2\dot2_V_1.9\macros
+`C:\ProgramData\MA Lighting Technologies\dot2\dot2_V_1.9\macros`
 
 in dot2 Console enter Import-Command for each Macro.  
 Example:  
-Import "macro_51_apcmini_palete_page5" At Macro 51
+`Import "macro_51_apcmini_palete_page5" At Macro 51`
