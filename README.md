@@ -1,4 +1,4 @@
-# dot2apcmini2
+# dot2apcmini
 nodejs code to control dot2 software use Akai APCmini midi controller, and akai apc mini mk2
 
 
@@ -17,11 +17,11 @@ turn on webremote (password remote)
 
 run from command prompt (win+R - cmd)
 
-node dot2apcmini2.js
+node dot2apcmini.js
 
 if u have akai apc mini mk2
 
-node dot2apcminimk2.js
+node dot2apcminimk.js
 
 
 --------------------
