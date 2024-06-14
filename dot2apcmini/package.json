@@ -1,8 +1,8 @@
 {
-  "name": "dot2apcmini2",
+  "name": "dot2apcmini",
   "version": "1.5.1",
   "description": "none",
-  "main": "dot2apcmini2.js",
+  "main": "dot2apcmini.js",
   "scripts": {
     "test": "none"
   },
