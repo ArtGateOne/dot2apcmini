@@ -1,4 +1,4 @@
-//dot2 Akai APC mini mk2 control code v 1.5.1 by ArtGateOne
+//dot2 Akai APC mini mk2 control code v 1.5.5 by ArtGateOne
 
 var easymidi = require('easymidi');
 var W3CWebSocket = require('websocket')
@@ -13,12 +13,15 @@ midi_in = 'APC mini mk2';     //set correct midi in device name
 midi_out = 'APC mini mk2';    //set correct midi out device name
 brightness = 6;     //led brightness 0-6
 darkmode = 0;   //new color mode 1 - ON , 0 - OFF
-colorpage = 5;  //select page to display colors (1- 5), 0 = off
+colorpage = 5;  //select page to display colors (1- 5) = on, 0 = off
+cuepage = 0;    //select page to use cue switch mode 1-5 = on , 0 = off
 autocolor = 1;  //Get color from Executor name
 
 
 
 //global variables
+var CueOn = "Cue 1";
+var CueOff = "Cue 2";
 var PauseButtonCommand = "DefGoPause";
 var GoMinusButtonCommand = "DefGoBack";
 var GoPlusButtonCommand = "DefGoForward";
@@ -27,6 +30,7 @@ var MasterRightFaderCommand = "SpecialMaster 1.2 At";
 var c1 = 0; //Color executor empty
 var c2 = 9; //color executor OFF
 var c3 = 21; //color executor ON
+var c4 = 45; //color executor ON (cue mode page)
 var f1 = 0; //Color fader button empty
 var f2 = 5; //color fader button OFF
 var f3 = 21; //color fader button ON
@@ -34,18 +38,20 @@ var f3 = 21; //color fader button ON
 var palete = [53, 45, 37, 21, 13, 96, 5, 3]; //palete colors <----
 
 var colornames = ['Black', 'White', 'Red', 'Orange', 'Yellow', 'Fern Green', 'Green', 'Sea Green', 'Cyan', 'Lavender', 'Blue', 'Violet', 'Magenta', 'Pink', 'CTO', 'CTB', 'Grey', 'Deep Red'];
-var colorcodes = [      0,       3,     5,        9,       13,           17,      21,          25,     33,         41,     45,       49,        53,     57,   108,   93,      1,        121];
+var colorcodes = [0, 3, 5, 9, 13, 17, 21, 25, 33, 41, 45, 49, 53, 57, 108, 93, 1, 121];
 
 if (darkmode === 1) {
     var c1 = 0;
     var c2 = 1;
     var c3 = 21;
+    var c4 = 45;
     var f1 = 0;
     var f2 = 1;
     var f3 = 5;
 }
 var blackout = 0; //0 off 1 on
 colorpage = colorpage - 1;
+cuepage = cuepage - 1;
 var pageIndex = 0;
 var pageIndex2 = 0; //default page for faders (0 = page 1, 1 = page 2 .....) if u dont use page select mode 2
 var channel = 6;
@@ -212,7 +218,11 @@ input.on('noteon', function (msg) {
             client.send('{"command":"' + PauseButtonCommand + '","session":' + session + ',"requestType":"command","maxRequests":0}');
         }
         else if (faderbuttons == "HI") {
+            if (pageIndex == cuepage) {
+                client.send('{"command":"Goto '+CueOn+' '+(pageIndex+1)+'.'+(buttons[msg.note]+1)+'","session":' + session + ',"requestType":"command","maxRequests":0}');
+            } else {
             client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
+            }
         } else {
             if (msg.note < 8) {
                 client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + fbuttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":1,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
@@ -224,7 +234,11 @@ input.on('noteon', function (msg) {
 
     else if (msg.note >= 0 && msg.note <= 15) {
         if (faderbuttons == "HI") {
+            if (pageIndex == cuepage) {
+                client.send('{"command":"Goto '+CueOn+' Executor '+(pageIndex+1)+'.'+(buttons[msg.note]+1)+'","session":' + session + ',"requestType":"command","maxRequests":0}');
+            } else {
             client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
+            }
         } else {
             if (msg.note < 8) {
                 client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + fbuttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":1,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
@@ -235,7 +249,11 @@ input.on('noteon', function (msg) {
     }
 
     else if (msg.note >= 16 && msg.note <= 63) {
-        client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex + ',"buttonId":0,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
+        if (pageIndex == cuepage) {
+            client.send('{"command":"Goto Cue 1 Executor '+(pageIndex+1)+'.'+(buttons[msg.note]+1)+'","session":' + session + ',"requestType":"command","maxRequests":0}');
+        } else {
+            client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex + ',"buttonId":0,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
+        }
     }
 
     else if (msg.note >= 100 && msg.note <= 107) {
@@ -306,7 +324,11 @@ input.on('noteoff', function (msg) {
         }
         else
             if (faderbuttons == "HI") {
+                if (pageIndex == cuepage) {
+                    client.send('{"command":"Goto '+CueOff+'  Executor '+(pageIndex+1)+'.'+(buttons[msg.note]+1)+'","session":' + session + ',"requestType":"command","maxRequests":0}');
+                } else {
                 client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
+                }
             } else {
                 if (msg.note < 8) {
                     client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + fbuttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":1,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
@@ -318,7 +340,11 @@ input.on('noteoff', function (msg) {
 
     else if (msg.note >= 0 && msg.note <= 15) {
         if (faderbuttons == "HI") {
+            if (pageIndex == cuepage) {
+                client.send('{"command":"Goto '+CueOff+'  Executor '+(pageIndex+1)+'.'+(buttons[msg.note]+1)+'","session":' + session + ',"requestType":"command","maxRequests":0}');
+            } else {
             client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
+            }
         } else {
             if (msg.note < 8) {
                 client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + fbuttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":1,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
@@ -329,7 +355,11 @@ input.on('noteoff', function (msg) {
     }
 
     else if (msg.note >= 16 && msg.note <= 63) {
+        if (pageIndex == cuepage) {
+            client.send('{"command":"Goto '+CueOff+' Executor '+(pageIndex+1)+'.'+(buttons[msg.note]+1)+'","session":' + session + ',"requestType":"command","maxRequests":0}');
+        } else {
         client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex + ',"buttonId":0,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
+        }
     }
 
     else if (msg.note >= 100 && msg.note <= 107) {
@@ -548,12 +578,13 @@ client.onmessage = function (e) {
                                 m = colorcodes[m];
                             }
 
-                            
+
 
                             if (obj.itemGroups[k].items[i][0].isRun == 1) {
                                 channel = 8;
                                 if (m == -1) {
                                     m = c3;
+                                    if (pageIndex == cuepage){ m = c4};
                                     channel = brightness;
                                 }
                                 if (darkmode == 1) {
@@ -596,6 +627,7 @@ client.onmessage = function (e) {
                             var m = c1;
                             if (obj.itemGroups[k].items[i][0].isRun == 1) {
                                 m = c3 + blackout;
+                                if (pageIndex == cuepage){ m = c4};
                             } else if ((obj.itemGroups[k].items[i][0].i.c) == "#000000") {
                                 m = c1
                             } else {
@@ -657,6 +689,7 @@ client.onmessage = function (e) {
 
                             if (obj.itemGroups[1].items[i][0].isRun == 1) {
                                 m = c3;
+                                if (pageIndex == cuepage){ m = c4};
                             } else if ((obj.itemGroups[1].items[i][0].i.c) == "#000000") {
                                 m = c1;
                             } else { m = c2; }
@@ -670,6 +703,7 @@ client.onmessage = function (e) {
                         for (i = 0; i < 6; i++) {
                             if (obj.itemGroups[2].items[i][0].isRun == 1) {
                                 m = c3;
+                                if (pageIndex == cuepage){ m = c4};
                             } else if ((obj.itemGroups[2].items[i][0].i.c) == "#000000") {
                                 m = c1;
                             } else { m = c2; }
@@ -724,6 +758,7 @@ client.onmessage = function (e) {
 
                             if (obj.itemGroups[1].items[i][0].isRun == 1) {
                                 m = c3;
+                                if (pageIndex == cuepage){ m = c4};
                             } else if ((obj.itemGroups[1].items[i][0].i.c) == "#000000") {
                                 m = c1;
                             } else { m = c2; }
@@ -736,6 +771,7 @@ client.onmessage = function (e) {
                         for (i = 0; i < 8; i++) {
                             if (obj.itemGroups[2].items[i][0].isRun == 1) {
                                 m = c3;
+                                if (pageIndex == cuepage){ m = c4};
                             } else if ((obj.itemGroups[2].items[i][0].i.c) == "#000000") {
                                 m = c1;
                             } else { m = c2; }
