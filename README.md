@@ -61,6 +61,8 @@ darkmode = 0;   //new color mode 1 - ON , 0 - OFF
 
 colorpage = 5;  //select page to display colors palete (1- 5), 0 = off
 
+cuepage = 0;    //select page to use cue switch mode 1-5 = on , 0 = off
+
 autocolor = 1;  //Get color from Executor name (use MA Colors names like Red, Green, Orange, Fern Green ...
 
 
@@ -88,6 +90,34 @@ U can off Autofix for only Executors
 use command
 
 Assign Executor 301  Thru 816 / AutoFix = "Off"
+
+
+-----------------------------
+
+v1.5.5
+
+**Code Update for APC Mini MK2 for dot2**  
+
+**New Functionality (cuepage)**  
+
+A new feature has been added, allowing you to set a page number for executors. When this functionality is enabled, pressing a button will execute the command `goto cue 1`, and releasing the button will execute `goto cue 2`.  
+
+This option is disabled by default in the main file.  
+To enable it, set the page number for which this feature should be active.  
+
+```javascript
+cuepage = 0; // Select page to use cue switch mode: 1-5 = on, 0 = off
+```
+
+Additionally, you can customize which cues are triggered upon button press and release (for the entire page):  
+
+```javascript
+// global variables
+var CueOn = "Cue 1";
+var CueOff = "Cue 2";
+```
+
+Happy testing!
 
 or 
 
