@@ -1,4 +1,4 @@
-//dot2 Akai APC mini mk2 control code v 1.6.0 color by ArtGateOne
+//dot2 Akai APC mini mk2 control code v 1.6.5 color by ArtGateOne
 
 var easymidi = require("easymidi");
 var W3CWebSocket = require("websocket").w3cwebsocket;
@@ -34,8 +34,29 @@ var f3 = 21; //color fader button ON
 var palete = [53, 45, 37, 21, 13, 96, 5, 3]; //palete colors <----v2
 //var palete = [53, 45, 33, 21, 13, 96, 5, 3]; //palete colors <----v1
 
-var colornames = ["Black","White","Red","Orange","Yellow","Fern Green","Green","Sea Green","Cyan","Lavender","Blue","Violet","Magenta","Pink","CTO","CTB","Grey","Deep Red",];
-var colorcodes = [ 0,      3,      5,    9,       13,      17,          21,     25,         37,    41,        45,    49,      53,       57,    108,  93,   1,     121]; //v2
+var colornames = [
+  "Black",
+  "White",
+  "Red",
+  "Orange",
+  "Yellow",
+  "Fern Green",
+  "Green",
+  "Sea Green",
+  "Cyan",
+  "Lavender",
+  "Blue",
+  "Violet",
+  "Magenta",
+  "Pink",
+  "CTO",
+  "CTB",
+  "Grey",
+  "Deep Red",
+];
+var colorcodes = [
+  0, 3, 5, 9, 13, 17, 21, 25, 37, 41, 45, 49, 53, 57, 108, 93, 1, 121,
+]; //v2
 //var colorcodes = [ 0, 3, 5, 9, 13, 17, 21, 25, 33, 41, 45, 49, 53, 57, 108, 93, 1, 121]; //v1
 
 if (darkmode === 1) {
@@ -972,24 +993,22 @@ client.onmessage = function (e) {
       if (obj.responseSubType == 2) {
         if (wing == 0) {
           j = 69;
-
-          for (i = 0; i < 6; i++) {
-            //faders dots
-            m = 0;
-            if (obj.itemGroups[0].items[i][0].isRun == 1) {
-              m = 127;
-            } /*else if ((obj.itemGroups[0].items[i][0].i.c) == "#000000") {
-                        m = 0
-                    } else { m = 1; }*/
-            if (ledmatrix[j] != m) {//?????????????????????????????????????????????????????????????????????????? 36
-              ledmatrix[j] = m;
-              output.send("noteon", { note: j + 36, velocity: m, channel: 0 });
-            }
-
-            if (autocolor == 1) {
-
+          if (autocolor == 1) {
+            for (i = 0; i < 6; i++) {
+              //faders dots
+              m = 0;
+              if (obj.itemGroups[0].items[i][0].isRun == 1) {
+                m = 127;
+              }
+              if (ledmatrix[j + 36] != m) {
+                ledmatrix[j + 36] = m;
+                output.send("noteon", {
+                  note: j + 36,
+                  velocity: m,
+                  channel: 0,
+                });
+              }
               if (faderbuttons == "LO") {
-
                 //display faders lower buttons
                 var m = findColorIndex(obj.itemGroups[0].items[i][0].tt.t);
                 if (m != -1) {
@@ -997,6 +1016,65 @@ client.onmessage = function (e) {
                 }
 
                 if (obj.itemGroups[0].items[i][0].isRun == 1) {
+                  channel = 8;
+                  if (m == -1) {
+                    m = f3;
+                    if (pageIndex == cuepage) {
+                      m = c4;
+                    }
+                    channel = brightness;
+                  }
+                  if (darkmode == 1) {
+                    channel = brightness;
+                  }
+                } else if (obj.itemGroups[0].items[i][0].i.c == "#000000") {
+                  if (m == -1) {
+                    m = f1;
+                  }
+                  channel = 0;
+                } else {
+                  channel = brightness;
+                  if (darkmode == 1) {
+                    channel = 0;
+                  }
+                  if (m == -1) {
+                    m = f2;
+                    channel = brightness;
+                  }
+                }
+
+                if (ledmatrix[j - 64] != m || ledvelocity[j - 64] != channel) {
+                  ledmatrix[j - 64] = m;
+                  ledvelocity[j - 64] = channel;
+                  output.send("noteon", {
+                    note: j - 64,
+                    velocity: m,
+                    channel: channel,
+                  });
+                }
+
+                if (ledmatrix[j - 56] != 0 || ledvelocity[j - 56] != 0) {
+                  ledmatrix[j - 56] = 0;
+                  ledvelocity[j - 56] = 0;
+                  output.send("noteon", {
+                    note: j - 56,
+                    velocity: 0,
+                    channel: 0,
+                  });
+                }
+              }
+              j--;
+            }
+            if (faderbuttons == "HI") {
+              j = 13;
+              for (i = 0; i < 6; i++) {
+                //upper fader exec
+                var m = findColorIndex(obj.itemGroups[1].items[i][0].tt.t);
+                if (m != -1) {
+                  m = colorcodes[m];
+                }
+
+                if (obj.itemGroups[1].items[i][0].isRun == 1) {
                   channel = 8;
                   if (m == -1) {
                     m = c3;
@@ -1008,7 +1086,7 @@ client.onmessage = function (e) {
                   if (darkmode == 1) {
                     channel = brightness;
                   }
-                } else if (obj.itemGroups[0].items[i][0].i.c == "#000000") {
+                } else if (obj.itemGroups[1].items[i][0].i.c == "#000000") {
                   if (m == -1) {
                     m = c1;
                   }
@@ -1024,126 +1102,80 @@ client.onmessage = function (e) {
                   }
                 }
 
-                if (ledmatrix[j - 64] != m || ledvelocity[j - 64] != channel) {
-                  ledmatrix[j - 64] = m;
-                  ledvelocity[j - 64] = channel;
+                if (ledmatrix[j] != m || ledvelocity[j] != channel) {
+                  ledmatrix[j] = m;
+                  ledvelocity[j] = channel;
                   output.send("noteon", {
-                    note: j - 64,
+                    note: j,
                     velocity: m,
                     channel: channel,
                   });
                 }
+                j = j - 1;
+              }
+              j = 5;
+              for (i = 0; i < 6; i++) {
+                var m = findColorIndex(obj.itemGroups[2].items[i][0].tt.t);
+                if (m != -1) {
+                  m = colorcodes[m];
+                }
 
-                if (ledmatrix[j - 54] != 0 || ledvelocity[j - 54] != 0) {
-                  ledmatrix[j - 54] = 0;
-                  ledvelocity[j - 54] = 0;
+                if (obj.itemGroups[2].items[i][0].isRun == 1) {
+                  channel = 8;
+                  if (m == -1) {
+                    m = c3;
+                    if (pageIndex == cuepage) {
+                      m = c4;
+                    }
+                    channel = brightness;
+                  }
+                  if (darkmode == 1) {
+                    channel = brightness;
+                  }
+                } else if (obj.itemGroups[2].items[i][0].i.c == "#000000") {
+                  if (m == -1) {
+                    m = c1;
+                  }
+                  channel = 0;
+                } else {
+                  channel = brightness;
+                  if (darkmode == 1) {
+                    channel = 0;
+                  }
+                  if (m == -1) {
+                    m = c2;
+                    channel = brightness;
+                  }
+                }
+
+                if (ledmatrix[j] != m || ledvelocity[j] != channel) {
+                  ledmatrix[j] = m;
+                  ledvelocity[j] = channel;
                   output.send("noteon", {
-                    note: j - 54,
-                    velocity: 0,
-                    channel: 0,
+                    note: j,
+                    velocity: m,
+                    channel: channel,
                   });
                 }
-                j--;
+                j = j - 1;
               }
-              if (faderbuttons == "HI") {
-
-                j = 13;
-                for (i = 0; i < 6; i++) {
-                  //upper fader exec
-                  var m = findColorIndex(obj.itemGroups[1].items[i][0].tt.t);
-                  if (m != -1) {
-                    m = colorcodes[m];
-                  }
-
-                  if (obj.itemGroups[1].items[i][0].isRun == 1) {
-                    channel = 8;
-                    if (m == -1) {
-                      m = c3;
-                      if (pageIndex == cuepage) {
-                        m = c4;
-                      }
-                      channel = brightness;
-                    }
-                    if (darkmode == 1) {
-                      channel = brightness;
-                    }
-                  } else if (obj.itemGroups[1].items[i][0].i.c == "#000000") {
-                    if (m == -1) {
-                      m = c1;
-                    }
-                    channel = 0;
-                  } else {
-                    channel = brightness;
-                    if (darkmode == 1) {
-                      channel = 0;
-                    }
-                    if (m == -1) {
-                      m = c2;
-                      channel = brightness;
-                    }
-                  }
-
-                  if (ledmatrix[j] != m || ledvelocity[j] != channel) {
-                    ledmatrix[j] = m;
-                    ledvelocity[j] = channel;
-                    output.send("noteon", {
-                      note: j,
-                      velocity: m,
-                      channel: channel,
-                    });
-                  }
-                  j = j - 1;
-                }
-                j = 5;
-                for (i = 0; i < 6; i++) {
-                  var m = findColorIndex(obj.itemGroups[2].items[i][0].tt.t);
-                  if (m != -1) {
-                    m = colorcodes[m];
-                  }
-
-                  if (obj.itemGroups[2].items[i][0].isRun == 1) {
-                    channel = 8;
-                    if (m == -1) {
-                      m = c3;
-                      if (pageIndex == cuepage) {
-                        m = c4;
-                      }
-                      channel = brightness;
-                    }
-                    if (darkmode == 1) {
-                      channel = brightness;
-                    }
-                  } else if (obj.itemGroups[2].items[i][0].i.c == "#000000") {
-                    if (m == -1) {
-                      m = c1;
-                    }
-                    channel = 0;
-                  } else {
-                    channel = brightness;
-                    if (darkmode == 1) {
-                      channel = 0;
-                    }
-                    if (m == -1) {
-                      m = c2;
-                      channel = brightness;
-                    }
-                  }
-
-                  if (ledmatrix[j] != m || ledvelocity[j] != channel) {
-                    ledmatrix[j] = m;
-                    ledvelocity[j] = channel;
-                    output.send("noteon", {
-                      note: j,
-                      velocity: m,
-                      channel: channel,
-                    });
-                  }
-                  j = j - 1;
-                }
+            }
+          } else {
+            for (i = 0; i < 6; i++) {
+              //faders dots
+              m = 0;
+              if (obj.itemGroups[0].items[i][0].isRun == 1) {
+                m = 127;
               }
-            } else {
+              if (ledmatrix[j + 36] != m) {
+                ledmatrix[j + 36] = m;
+                output.send("noteon", {
+                  note: j + 36,
+                  velocity: m,
+                  channel: 0,
+                });
+              }
               if (faderbuttons == "LO") {
-
                 //display faders lower buttons
                 if (obj.itemGroups[0].items[i][0].isRun == 1) {
                   m = f3;
@@ -1176,7 +1208,6 @@ client.onmessage = function (e) {
               j--;
             }
             if (faderbuttons == "HI") {
-
               j = 13;
               for (i = 0; i < 6; i++) {
                 //upper fader exec
@@ -1226,26 +1257,22 @@ client.onmessage = function (e) {
             }
           }
         } else {
-          //jesli wing 1 2  -------------------------------------------
           j = 71;
 
           for (i = 0; i < 8; i++) {
-            //jesli wing 0 autokolo 1 ------------------------------------------- fader dot red
             //faders dots
             m = 0;
             if (obj.itemGroups[0].items[i][0].isRun == 1) {
               m = 127;
             }
-            if (ledmatrix[j] != m) {
-              ledmatrix[j] = m;
+            if (ledmatrix[j + 36] != m) {
+              ledmatrix[j + 36] = m;
               output.send("noteon", { note: j + 36, velocity: m, channel: 0 });
             }
 
             if (faderbuttons == "LO") {
-              //jesli wing 1 2  -------------------------------------------LO
               //display faders lower buttons
               if (autocolor == 1) {
-                //jesli wing 1 2  -------------------------------------------LO Autocolor 1
                 var m = findColorIndex(obj.itemGroups[0].items[i][0].tt.t);
                 if (m != -1) {
                   m = colorcodes[m];
@@ -1254,7 +1281,7 @@ client.onmessage = function (e) {
                 if (obj.itemGroups[0].items[i][0].isRun == 1) {
                   channel = 8;
                   if (m == -1) {
-                    m = c3;
+                    m = f3;
                     if (pageIndex == cuepage) {
                       m = c4;
                     }
@@ -1265,7 +1292,7 @@ client.onmessage = function (e) {
                   }
                 } else if (obj.itemGroups[0].items[i][0].i.c == "#000000") {
                   if (m == -1) {
-                    m = c1;
+                    m = f1;
                   }
                   channel = 0;
                 } else {
@@ -1274,7 +1301,7 @@ client.onmessage = function (e) {
                     channel = 0;
                   }
                   if (m == -1) {
-                    m = c2;
+                    m = f2;
                     channel = brightness;
                   }
                 }
@@ -1299,7 +1326,6 @@ client.onmessage = function (e) {
                   });
                 }
               } else {
-                //jesli wing 1 2  -------------------------------------------LO autocolor 0
                 if (obj.itemGroups[0].items[i][0].isRun == 1) {
                   m = f3;
                 } else if (obj.itemGroups[0].items[i][0].i.c == "#000000") {
@@ -1314,10 +1340,10 @@ client.onmessage = function (e) {
                     note: j - 64,
                     velocity: m,
                     channel: brightness,
-                  }); // executor aktywny
+                  });
                 }
 
-                if (m == f2 || m == f3) m = f2; // gorna kropka fader
+                if (m == f2 || m == f3) m = f2;
 
                 if (ledmatrix[j - 56] != m) {
                   ledmatrix[j - 56] = m;
@@ -1325,7 +1351,7 @@ client.onmessage = function (e) {
                     note: j - 56,
                     velocity: m,
                     channel: brightness,
-                  }); // executor fader red statyczny
+                  });
                 }
               }
             }
@@ -1334,10 +1360,8 @@ client.onmessage = function (e) {
           }
 
           if (faderbuttons == "HI") {
-            //jesli wing 1 2  -------------------------------------------HI
             j = 15;
             if (autocolor == 1) {
-              //jesli wing 1 2  -------------------------------------------HI autocolor 1
               for (i = 0; i < 8; i++) {
                 //upper fader exec
                 var m = findColorIndex(obj.itemGroups[1].items[i][0].tt.t);
@@ -1430,10 +1454,7 @@ client.onmessage = function (e) {
                 j = j - 1;
               }
             } else {
-              //jesli wing 1 2  -------------------------------------------hi autocolor 0
               for (i = 0; i < 8; i++) {
-                //upper fader exec
-
                 if (obj.itemGroups[1].items[i][0].isRun == 1) {
                   m = c3;
                   if (pageIndex == cuepage) {
