@@ -1,4 +1,4 @@
-//dot2 Akai APC mini mk2 control code v 1.6.7 color by ArtGateOne
+//dot2 Akai APC mini mk2 control code v 1.7.0 color by ArtGateOne
 
 var easymidi = require("easymidi");
 var W3CWebSocket = require("websocket").w3cwebsocket;
@@ -323,8 +323,8 @@ input.on("noteon", function (msg) {
         client.send(
           '{"command":"Goto ' +
             CueOn +
-            " " +
-            (pageIndex + 1) +
+            " Executor " +
+            (pageIndex2 + 1) +
             "." +
             (buttons[msg.note] + 1) +
             '","session":' +
@@ -372,7 +372,7 @@ input.on("noteon", function (msg) {
           '{"command":"Goto ' +
             CueOn +
             " Executor " +
-            (pageIndex + 1) +
+            (pageIndex2 + 1) +
             "." +
             (buttons[msg.note] + 1) +
             '","session":' +
@@ -516,7 +516,7 @@ input.on("noteoff", function (msg) {
           '{"command":"Goto ' +
             CueOff +
             "  Executor " +
-            (pageIndex + 1) +
+            (pageIndex2 + 1) +
             "." +
             (buttons[msg.note] + 1) +
             '","session":' +
@@ -564,7 +564,7 @@ input.on("noteoff", function (msg) {
           '{"command":"Goto ' +
             CueOff +
             "  Executor " +
-            (pageIndex + 1) +
+            (pageIndex2 + 1) +
             "." +
             (buttons[msg.note] + 1) +
             '","session":' +

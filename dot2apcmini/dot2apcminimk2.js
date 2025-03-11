@@ -1,4 +1,4 @@
-//dot2 Akai APC mini mk2 control code v 1.5.7 by ArtGateOne
+//dot2 Akai APC mini mk2 control code v 1.6.0 by ArtGateOne
 
 var easymidi = require('easymidi');
 var W3CWebSocket = require('websocket')
@@ -219,7 +219,7 @@ input.on('noteon', function (msg) {
         }
         else if (faderbuttons == "HI") {
             if (pageIndex2 == cuepage) {
-                client.send('{"command":"Goto '+CueOn+' '+(pageIndex+1)+'.'+(buttons[msg.note]+1)+'","session":' + session + ',"requestType":"command","maxRequests":0}');
+                client.send('{"command":"Goto '+CueOn+' Executor ' + (pageIndex2 + 1) + '.'+(buttons[msg.note]+1)+'","session":' + session + ',"requestType":"command","maxRequests":0}');
             } else {
             client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
             }
@@ -235,7 +235,7 @@ input.on('noteon', function (msg) {
     else if (msg.note >= 0 && msg.note <= 15) {
         if (faderbuttons == "HI") {
             if (pageIndex2 == cuepage) {
-                client.send('{"command":"Goto '+CueOn+' Executor '+(pageIndex+1)+'.'+(buttons[msg.note]+1)+'","session":' + session + ',"requestType":"command","maxRequests":0}');
+                client.send('{"command":"Goto '+CueOn+' Executor ' + (pageIndex2 + 1) + '.' + (buttons[msg.note]+1) + '","session":' + session + ',"requestType":"command","maxRequests":0}');
             } else {
             client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
             }
@@ -325,7 +325,7 @@ input.on('noteoff', function (msg) {
         else
             if (faderbuttons == "HI") {
                 if (pageIndex2 == cuepage) {
-                    client.send('{"command":"Goto '+CueOff+'  Executor '+(pageIndex+1)+'.'+(buttons[msg.note]+1)+'","session":' + session + ',"requestType":"command","maxRequests":0}');
+                    client.send('{"command":"Goto '+CueOff+'  Executor ' + (pageIndex2 + 1) + '.' + (buttons[msg.note]+1) + '","session":' + session + ',"requestType":"command","maxRequests":0}');
                 } else {
                 client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
                 }
@@ -341,7 +341,7 @@ input.on('noteoff', function (msg) {
     else if (msg.note >= 0 && msg.note <= 15) {
         if (faderbuttons == "HI") {
             if (pageIndex2 == cuepage) {
-                client.send('{"command":"Goto '+CueOff+'  Executor '+(pageIndex+1)+'.'+(buttons[msg.note]+1)+'","session":' + session + ',"requestType":"command","maxRequests":0}');
+                client.send('{"command":"Goto '+CueOff+'  Executor ' + (pageIndex2 + 1) + '.' + (buttons[msg.note]+1) + '","session":' + session + ',"requestType":"command","maxRequests":0}');
             } else {
             client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
             }
