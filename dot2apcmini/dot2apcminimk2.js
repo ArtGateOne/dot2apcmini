@@ -1,4 +1,4 @@
-//dot2 Akai APC mini mk2 control code v 1.5.5 by ArtGateOne
+//dot2 Akai APC mini mk2 control code v 1.5.7 by ArtGateOne
 
 var easymidi = require('easymidi');
 var W3CWebSocket = require('websocket')
@@ -14,7 +14,7 @@ midi_out = 'APC mini mk2';    //set correct midi out device name
 brightness = 6;     //led brightness 0-6
 darkmode = 0;   //new color mode 1 - ON , 0 - OFF
 colorpage = 5;  //select page to display colors (1- 5) = on, 0 = off
-cuepage = 0;    //select page to use cue switch mode 1-5 = on , 0 = off
+cuepage = 0;    //select page to use cue switch mode 1-5 = on , 0 = off (only executors 101-816)
 autocolor = 1;  //Get color from Executor name
 
 
@@ -218,7 +218,7 @@ input.on('noteon', function (msg) {
             client.send('{"command":"' + PauseButtonCommand + '","session":' + session + ',"requestType":"command","maxRequests":0}');
         }
         else if (faderbuttons == "HI") {
-            if (pageIndex == cuepage) {
+            if (pageIndex2 == cuepage) {
                 client.send('{"command":"Goto '+CueOn+' '+(pageIndex+1)+'.'+(buttons[msg.note]+1)+'","session":' + session + ',"requestType":"command","maxRequests":0}');
             } else {
             client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
@@ -234,7 +234,7 @@ input.on('noteon', function (msg) {
 
     else if (msg.note >= 0 && msg.note <= 15) {
         if (faderbuttons == "HI") {
-            if (pageIndex == cuepage) {
+            if (pageIndex2 == cuepage) {
                 client.send('{"command":"Goto '+CueOn+' Executor '+(pageIndex+1)+'.'+(buttons[msg.note]+1)+'","session":' + session + ',"requestType":"command","maxRequests":0}');
             } else {
             client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
@@ -324,7 +324,7 @@ input.on('noteoff', function (msg) {
         }
         else
             if (faderbuttons == "HI") {
-                if (pageIndex == cuepage) {
+                if (pageIndex2 == cuepage) {
                     client.send('{"command":"Goto '+CueOff+'  Executor '+(pageIndex+1)+'.'+(buttons[msg.note]+1)+'","session":' + session + ',"requestType":"command","maxRequests":0}');
                 } else {
                 client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
@@ -340,7 +340,7 @@ input.on('noteoff', function (msg) {
 
     else if (msg.note >= 0 && msg.note <= 15) {
         if (faderbuttons == "HI") {
-            if (pageIndex == cuepage) {
+            if (pageIndex2 == cuepage) {
                 client.send('{"command":"Goto '+CueOff+'  Executor '+(pageIndex+1)+'.'+(buttons[msg.note]+1)+'","session":' + session + ',"requestType":"command","maxRequests":0}');
             } else {
             client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
@@ -689,7 +689,7 @@ client.onmessage = function (e) {
 
                             if (obj.itemGroups[1].items[i][0].isRun == 1) {
                                 m = c3;
-                                if (pageIndex == cuepage){ m = c4};
+                                if (pageIndex2 == cuepage){ m = c4};
                             } else if ((obj.itemGroups[1].items[i][0].i.c) == "#000000") {
                                 m = c1;
                             } else { m = c2; }
@@ -703,7 +703,7 @@ client.onmessage = function (e) {
                         for (i = 0; i < 6; i++) {
                             if (obj.itemGroups[2].items[i][0].isRun == 1) {
                                 m = c3;
-                                if (pageIndex == cuepage){ m = c4};
+                                if (pageIndex2 == cuepage){ m = c4};
                             } else if ((obj.itemGroups[2].items[i][0].i.c) == "#000000") {
                                 m = c1;
                             } else { m = c2; }
@@ -758,7 +758,7 @@ client.onmessage = function (e) {
 
                             if (obj.itemGroups[1].items[i][0].isRun == 1) {
                                 m = c3;
-                                if (pageIndex == cuepage){ m = c4};
+                                if (pageIndex2 == cuepage){ m = c4};
                             } else if ((obj.itemGroups[1].items[i][0].i.c) == "#000000") {
                                 m = c1;
                             } else { m = c2; }
@@ -771,7 +771,7 @@ client.onmessage = function (e) {
                         for (i = 0; i < 8; i++) {
                             if (obj.itemGroups[2].items[i][0].isRun == 1) {
                                 m = c3;
-                                if (pageIndex == cuepage){ m = c4};
+                                if (pageIndex2 == cuepage){ m = c4};
                             } else if ((obj.itemGroups[2].items[i][0].i.c) == "#000000") {
                                 m = c1;
                             } else { m = c2; }

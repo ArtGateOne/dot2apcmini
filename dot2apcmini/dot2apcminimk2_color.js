@@ -1,4 +1,4 @@
-//dot2 Akai APC mini mk2 control code v 1.6.5 color by ArtGateOne
+//dot2 Akai APC mini mk2 control code v 1.6.7 color by ArtGateOne
 
 var easymidi = require("easymidi");
 var W3CWebSocket = require("websocket").w3cwebsocket;
@@ -12,7 +12,7 @@ midi_out = "APC mini mk2"; //set correct midi out device name
 brightness = 6; //led brightness 0-6
 darkmode = 0; //new color mode 1 - ON , 0 - OFF
 colorpage = 5; //select page to display colors (1- 5) = on, 0 = off
-cuepage = 0; //select page to use cue switch mode 1-5 = on , 0 = off
+cuepage = 0; //select page to use cue switch mode 1-5 = on , 0 = off (only executors 101-816)
 autocolor = 1; //Get color from Executor name
 
 //global variables
@@ -319,7 +319,7 @@ input.on("noteon", function (msg) {
           ',"requestType":"command","maxRequests":0}'
       );
     } else if (faderbuttons == "HI") {
-      if (pageIndex == cuepage) {
+      if (pageIndex2 == cuepage) {
         client.send(
           '{"command":"Goto ' +
             CueOn +
@@ -367,7 +367,7 @@ input.on("noteon", function (msg) {
     }
   } else if (msg.note >= 0 && msg.note <= 15) {
     if (faderbuttons == "HI") {
-      if (pageIndex == cuepage) {
+      if (pageIndex2 == cuepage) {
         client.send(
           '{"command":"Goto ' +
             CueOn +
@@ -511,7 +511,7 @@ input.on("noteoff", function (msg) {
     } else if (msg.note == 15) {
       //do nothing
     } else if (faderbuttons == "HI") {
-      if (pageIndex == cuepage) {
+      if (pageIndex2 == cuepage) {
         client.send(
           '{"command":"Goto ' +
             CueOff +
@@ -559,7 +559,7 @@ input.on("noteoff", function (msg) {
     }
   } else if (msg.note >= 0 && msg.note <= 15) {
     if (faderbuttons == "HI") {
-      if (pageIndex == cuepage) {
+      if (pageIndex2 == cuepage) {
         client.send(
           '{"command":"Goto ' +
             CueOff +
@@ -1019,9 +1019,9 @@ client.onmessage = function (e) {
                   channel = 8;
                   if (m == -1) {
                     m = f3;
-                    if (pageIndex == cuepage) {
-                      m = c4;
-                    }
+                    //if (pageIndex == cuepage) {
+                    //  m = c4;
+                    //}
                     channel = brightness;
                   }
                   if (darkmode == 1) {
@@ -1078,7 +1078,7 @@ client.onmessage = function (e) {
                   channel = 8;
                   if (m == -1) {
                     m = c3;
-                    if (pageIndex == cuepage) {
+                    if (pageIndex2 == cuepage) {
                       m = c4;
                     }
                     channel = brightness;
@@ -1124,7 +1124,7 @@ client.onmessage = function (e) {
                   channel = 8;
                   if (m == -1) {
                     m = c3;
-                    if (pageIndex == cuepage) {
+                    if (pageIndex2 == cuepage) {
                       m = c4;
                     }
                     channel = brightness;
@@ -1214,7 +1214,7 @@ client.onmessage = function (e) {
 
                 if (obj.itemGroups[1].items[i][0].isRun == 1) {
                   m = c3;
-                  if (pageIndex == cuepage) {
+                  if (pageIndex2 == cuepage) {
                     m = c4;
                   }
                 } else if (obj.itemGroups[1].items[i][0].i.c == "#000000") {
@@ -1236,7 +1236,7 @@ client.onmessage = function (e) {
               for (i = 0; i < 6; i++) {
                 if (obj.itemGroups[2].items[i][0].isRun == 1) {
                   m = c3;
-                  if (pageIndex == cuepage) {
+                  if (pageIndex2 == cuepage) {
                     m = c4;
                   }
                 } else if (obj.itemGroups[2].items[i][0].i.c == "#000000") {
@@ -1282,9 +1282,9 @@ client.onmessage = function (e) {
                   channel = 8;
                   if (m == -1) {
                     m = f3;
-                    if (pageIndex == cuepage) {
-                      m = c4;
-                    }
+                    //if (pageIndex == cuepage) {
+                    //  m = c4;
+                    //}
                     channel = brightness;
                   }
                   if (darkmode == 1) {
@@ -1373,7 +1373,7 @@ client.onmessage = function (e) {
                   channel = 8;
                   if (m == -1) {
                     m = c3;
-                    if (pageIndex == cuepage) {
+                    if (pageIndex2 == cuepage) {
                       m = c4;
                     }
                     channel = brightness;
@@ -1418,7 +1418,7 @@ client.onmessage = function (e) {
                   channel = 8;
                   if (m == -1) {
                     m = c3;
-                    if (pageIndex == cuepage) {
+                    if (pageIndex2 == cuepage) {
                       m = c4;
                     }
                     channel = brightness;
@@ -1457,7 +1457,7 @@ client.onmessage = function (e) {
               for (i = 0; i < 8; i++) {
                 if (obj.itemGroups[1].items[i][0].isRun == 1) {
                   m = c3;
-                  if (pageIndex == cuepage) {
+                  if (pageIndex2 == cuepage) {
                     m = c4;
                   }
                 } else if (obj.itemGroups[1].items[i][0].i.c == "#000000") {
@@ -1478,7 +1478,7 @@ client.onmessage = function (e) {
               for (i = 0; i < 8; i++) {
                 if (obj.itemGroups[2].items[i][0].isRun == 1) {
                   m = c3;
-                  if (pageIndex == cuepage) {
+                  if (pageIndex2 == cuepage) {
                     m = c4;
                   }
                 } else if (obj.itemGroups[2].items[i][0].i.c == "#000000") {
