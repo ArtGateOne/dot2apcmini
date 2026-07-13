@@ -1,517 +1,586 @@
-var easymidi = require('easymidi');
-var W3CWebSocket = require('websocket')
-    .w3cwebsocket;
-var client = new W3CWebSocket('ws://localhost:80/'); //U can change localhost(127.0.0.1) to Your console IP address
+'use strict';
 
+// Akai APC mini -> MA dot2 web remote bridge.
+// Button layout is unchanged from the original ArtGateOne script:
+//
+//   notes  0-15  fader buttons (HI: executor buttons / LO: fader exec buttons)
+//   notes 16-63  8x6 executor grid
+//   notes 64-71  momentary flash buttons for the 8 faders
+//   notes 82-86  page select 1-5
+//   note  87/88  wing 1 / wing 2
+//   note  89     fader-button mode toggle (LED lit = LO)
+//   note  98     SHIFT = blackout toggle
+//   cc    48-55  executor faders, cc 56 = grand master
 
-//config 
-wing = 1;   //set wing 1 or 2
-page = 2;   //set page select mode - 0-off, 1-only exec buttons(5), 2-exec buttons and faders together(5)
-midi_in = 'APC MINI 0';     //set correct midi in device name
-midi_out = 'APC MINI 1';    //set correct midi out device name
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+const easymidi = require('easymidi');
+const W3CWebSocket = require('websocket').w3cwebsocket;
 
+// --------------------------------------------------------------------------
+// config -- override any of these in config.json next to this file
+// --------------------------------------------------------------------------
+const DEFAULT_CONFIG = {
+    host: 'ws://localhost:80/',   // dot2 web remote; use the console IP instead of localhost
+    wing: 1,                      // 1 or 2
+    page: 2,                      // 0 = page buttons off, 1 = exec buttons only, 2 = exec buttons + faders
+    password: 'remote',           // web remote password
+    midiIn: 'APC MINI',           // substring/regex matched against the available ports
+    midiOut: 'APC MINI',
+    pollIntervalMs: 100,          // how often playback state is requested back from dot2
+    faderThrottleMs: 50,          // minimum gap between fader messages (0 and 127 always pass)
+    reconnectDelayMs: 2000
+};
 
-//global variables
-var blackout = 0; //0 off 1 on
-var pageIndex = 0;
-var pageIndex2 = 0;
-var faderbuttons = "HI";
-var request = 0;
-var session = 0;
-var exec = JSON.parse('{"index":[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,4,3,2,1,0,66,66,66,66,66],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,12,11,10,9,8,7,6,66],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,21,20,19,18,17,16,15,14,66]]}');
-var ledmatrix = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 5, 5, 5, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 5, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-var faderValue = [0, 0, 0, 0, 0.002, 0.006, 0.01, 0.014, 0.018, 0.022, 0.026, 0.03, 0.034, 0.038, 0.042, 0.046, 0.05, 0.053, 0.057, 0.061, 0.065, 0.069, 0.073, 0.077, 0.081, 0.085, 0.089, 0.093, 0.097, 0.1, 0.104, 0.108, 0.112, 0.116, 0.12, 0.124, 0.128, 0.132, 0.136, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 0.3, 0.31, 0.32, 0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39, 0.4, 0.41, 0.42, 0.43, 0.44, 0.45, 0.46, 0.47, 0.48, 0.49, 0.5, 0.51, 0.52, 0.53, 0.54, 0.55, 0.56, 0.57, 0.58, 0.59, 0.6, 0.61, 0.62, 0.63, 0.64, 0.65, 0.66, 0.67, 0.68, 0.69, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.76, 0.77, 0.78, 0.79, 0.8, 0.81, 0.82, 0.83, 0.84, 0.85, 0.86, 0.87, 0.88, 0.89, 0.9, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99, 1, 1, 1];
-var faderValueMem = [0, 0, 0];
-var faderTime = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-const NS_PER_SEC = 1e9;
-
-
-if (wing == 1) {
-    faderValueMem[56] = 1;
-    var fbuttons = [13, 12, 11, 10, 9, 8, 7, 6, 13, 12, 11, 10, 9, 8, 7, 6];
-    var buttons = [213, 212, 211, 210, 209, 208, 207, 206, 113, 112, 111, 110, 109, 108, 107, 106, 807, 806, 805, 804, 803, 802, 801, 800, 707, 706, 705, 704, 703, 702, 701, 700, 607, 606, 605, 604, 603, 602, 601, 600, 507, 506, 505, 504, 503, 502, 501, 500, 407, 406, 405, 404, 403, 402, 401, 400, 307, 306, 305, 304, 303, 302, 301, 300];
-} else if (wing == 2) {
-    var fbuttons = [21, 20, 19, 18, 17, 16, 15, 14, 21, 20, 19, 18, 17, 16, 15, 14];
-    var buttons = [221, 220, 219, 218, 217, 216, 215, 214, 121, 120, 119, 118, 117, 116, 115, 114, 815, 814, 813, 812, 811, 810, 809, 808, 715, 714, 713, 712, 711, 710, 709, 708, 615, 614, 613, 612, 611, 610, 609, 608, 515, 514, 513, 512, 511, 510, 509, 508, 415, 414, 413, 412, 411, 410, 409, 408, 315, 314, 313, 312, 311, 310, 309, 308];
-}
-
-
-
-for (i = 48; i <= 56; i++) { //fader time set
-    faderTime[i] = process.hrtime();
-}
-
-//sleep function
-function sleep(time, callback) {
-    var stop = new Date()
-        .getTime();
-    while (new Date()
-        .getTime() < stop + time) {
-        ;
+function loadConfig() {
+    const file = path.join(__dirname, 'config.json');
+    if (!fs.existsSync(file)) return { ...DEFAULT_CONFIG };
+    try {
+        return { ...DEFAULT_CONFIG, ...JSON.parse(fs.readFileSync(file, 'utf8')) };
+    } catch (err) {
+        console.log('config.json could not be read (' + err.message + '), using defaults');
+        return { ...DEFAULT_CONFIG };
     }
-    callback();
 }
 
+const config = loadConfig();
 
-//interval send data to server function
-function interval() {
-    if (session > 0) {
-        if (wing == 1) {
-            client.send('{"requestType":"playbacks","startIndex":[300,400,500,600,700,800],"itemsCount":[8,8,8,8,8,8],"pageIndex":' + pageIndex + ',"itemsType":[3,3,3,3,3,3],"view":3,"execButtonViewMode":2,"buttonsViewMode":0,"session":' + session + ',"maxRequests":1}');
-            client.send('{"requestType":"playbacks","startIndex":[6,106,206],"itemsCount":[8,8,8],"pageIndex":' + pageIndex2 + ',"itemsType":[2,3,3],"view":2,"execButtonViewMode":1,"buttonsViewMode":0,"session":' + session + ',"maxRequests":1}');
+// One-off override without editing config.json:  node dot2apcmini2m.js "<in port>" "<out port>"
+if (process.argv[2]) config.midiIn = process.argv[2];
+if (process.argv[3]) config.midiOut = process.argv[3];
 
+// --------------------------------------------------------------------------
+// constants
+// --------------------------------------------------------------------------
+const LED = {
+    OFF: 0,
+    GREEN: 1,
+    GREEN_BLINK: 2,
+    RED: 3,
+    RED_BLINK: 4,
+    YELLOW: 5,
+    YELLOW_BLINK: 6
+};
+
+const NOTE_PAGE_FIRST = 82;   // 82..86 = page 1..5
+const NOTE_WING_1 = 87;
+const NOTE_WING_2 = 88;
+const NOTE_FADER_MODE = 89;
+const NOTE_SHIFT = 98;
+const NOTE_COUNT = 90;        // notes we ever light up
+
+const CC_FADER_FIRST = 48;
+const CC_MASTER = 56;
+
+// The ".2" logo drawn on the grid at startup.
+const BOOT_PATTERN = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 5, 5, 5, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 5, 0, 5, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+// MIDI fader value (0..127) -> dot2 fader value (0..1). Deliberately non-linear
+// at the bottom so the first few millimetres of travel stay near zero.
+const FADER_VALUE = [0, 0, 0, 0, 0.002, 0.006, 0.01, 0.014, 0.018, 0.022, 0.026, 0.03, 0.034, 0.038, 0.042, 0.046, 0.05, 0.053, 0.057, 0.061, 0.065, 0.069, 0.073, 0.077, 0.081, 0.085, 0.089, 0.093, 0.097, 0.1, 0.104, 0.108, 0.112, 0.116, 0.12, 0.124, 0.128, 0.132, 0.136, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 0.3, 0.31, 0.32, 0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39, 0.4, 0.41, 0.42, 0.43, 0.44, 0.45, 0.46, 0.47, 0.48, 0.49, 0.5, 0.51, 0.52, 0.53, 0.54, 0.55, 0.56, 0.57, 0.58, 0.59, 0.6, 0.61, 0.62, 0.63, 0.64, 0.65, 0.66, 0.67, 0.68, 0.69, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.76, 0.77, 0.78, 0.79, 0.8, 0.81, 0.82, 0.83, 0.84, 0.85, 0.86, 0.87, 0.88, 0.89, 0.9, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99, 1, 1, 1];
+
+// --------------------------------------------------------------------------
+// executor maps -- wing 2 is wing 1 shifted by 8 executors
+// --------------------------------------------------------------------------
+
+// note 0..63 -> executor index
+function makeButtonMap(wing) {
+    const off = (wing - 1) * 8;
+    const map = new Array(64);
+    for (let n = 0; n <= 7; n++) map[n] = 213 - n + off;          // fader buttons, upper row
+    for (let n = 8; n <= 15; n++) map[n] = 121 - n + off;         // fader buttons, lower row
+    for (let n = 16; n <= 63; n++) {
+        const row = Math.floor((n - 16) / 8);                     // 0..5 -> 800,700,...,300
+        const col = n % 8;
+        map[n] = (800 - row * 100) + (7 - col) + off;
+    }
+    return map;
+}
+
+// note 0..15 -> fader executor index (LO mode)
+function makeFaderButtonMap(wing) {
+    const off = (wing - 1) * 8;
+    const map = new Array(16);
+    for (let n = 0; n < 16; n++) map[n] = 13 - (n % 8) + off;
+    return map;
+}
+
+// cc 48..55 -> fader executor index
+function makeFaderExecMap(wing) {
+    const off = (wing - 1) * 8;
+    const map = [];
+    for (let i = 0; i < 8; i++) map[CC_FADER_FIRST + i] = 13 - i + off;
+    return map;
+}
+
+// --------------------------------------------------------------------------
+// state
+// --------------------------------------------------------------------------
+let wing = config.wing === 2 ? 2 : 1;
+let buttons = makeButtonMap(wing);
+let fbuttons = makeFaderButtonMap(wing);
+let faderExec = makeFaderExecMap(wing);
+
+let blackout = false;
+let pageIndex = 0;        // executor buttons
+let pageIndex2 = 0;       // faders
+let faderMode = 'HI';     // 'HI' or 'LO'
+
+let session = 0;
+let requestCount = 0;
+let pollTimer = null;
+let client = null;
+let shuttingDown = false;
+
+const ledmatrix = new Array(NOTE_COUNT).fill(LED.OFF);
+const faderValueMem = new Array(CC_MASTER + 1).fill(0);
+const faderTime = new Array(CC_MASTER + 1).fill(0n);
+
+// Master starts at full: we cannot read the physical fader, and dot2's grand
+// master defaults to 100%. Blackout-off restores this value.
+faderValueMem[CC_MASTER] = 1;
+
+// --------------------------------------------------------------------------
+// midi
+// --------------------------------------------------------------------------
+function findPort(ports, wanted, kind) {
+    const re = new RegExp(wanted.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s*'), 'i');
+    const hit = ports.find(p => re.test(p));
+    if (!hit) {
+        console.log('');
+        console.log('ERROR: no MIDI ' + kind + ' port matching "' + wanted + '".');
+        console.log('Available ' + kind + ' ports: ' + (ports.length ? ports.join(', ') : '(none)'));
+        console.log('Plug in the APC mini, or set "midiIn"/"midiOut" in config.json.');
+        process.exit(1);
+    }
+    return hit;
+}
+
+console.log('Akai APC mini .2  ->  dot2 web remote');
+console.log('');
+console.log('Midi IN : ' + easymidi.getInputs().join(', '));
+console.log('Midi OUT: ' + easymidi.getOutputs().join(', '));
+console.log('');
+
+const inPortName = findPort(easymidi.getInputs(), config.midiIn, 'input');
+const outPortName = findPort(easymidi.getOutputs(), config.midiOut, 'output');
+console.log('Using "' + inPortName + '" / "' + outPortName + '"');
+
+const input = new easymidi.Input(inPortName);
+const output = new easymidi.Output(outPortName);
+
+function led(note, velocity) {
+    if (ledmatrix[note] === velocity) return;
+    ledmatrix[note] = velocity;
+    output.send('noteon', { note: note, velocity: velocity, channel: 0 });
+}
+
+// Same as led() but always writes, for the control buttons whose state we set
+// rather than mirror from dot2.
+function ledForce(note, velocity) {
+    ledmatrix[note] = velocity;
+    output.send('noteon', { note: note, velocity: velocity, channel: 0 });
+}
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+// Bulk LED writes are sent in small bursts so the APC's MIDI buffer keeps up.
+// Unlike the original this yields to the event loop instead of spinning the CPU.
+async function paintAll(pattern) {
+    for (let n = 0; n < NOTE_COUNT; n++) {
+        ledmatrix[n] = pattern[n] || LED.OFF;
+        output.send('noteon', { note: n, velocity: ledmatrix[n], channel: 0 });
+        if (n % 10 === 9) await delay(5);
+    }
+}
+
+function paintControlLeds() {
+    if (config.page > 0) {
+        for (let n = NOTE_PAGE_FIRST; n <= NOTE_PAGE_FIRST + 4; n++) {
+            ledForce(n, n === NOTE_PAGE_FIRST + pageIndex ? LED.GREEN : LED.OFF);
         }
-        if (wing == 2) {
-            client.send('{"requestType":"playbacks","startIndex":[308,408,508,608,708,808],"itemsCount":[8,8,8,8,8,8],"pageIndex":' + pageIndex + ',"itemsType":[3,3,3,3,3,3],"view":3,"execButtonViewMode":2,"buttonsViewMode":0,"session":' + session + ',"maxRequests":1}');
-            client.send('{"requestType":"playbacks","startIndex":[14,114,214],"itemsCount":[8,8,8],"pageIndex":' + pageIndex2 + ',"itemsType":[2,3,3],"view":2,"execButtonViewMode":1,"buttonsViewMode":0,"session":' + session + ',"maxRequests":1}');
+    }
+    ledForce(NOTE_WING_1, wing === 1 ? LED.GREEN : LED.OFF);
+    ledForce(NOTE_WING_2, wing === 2 ? LED.GREEN : LED.OFF);
+    ledForce(NOTE_FADER_MODE, faderMode === 'LO' ? LED.GREEN : LED.OFF);
+}
+
+// --------------------------------------------------------------------------
+// websocket send helpers
+// --------------------------------------------------------------------------
+function send(msg) {
+    if (!client || client.readyState !== client.OPEN) return;
+    try {
+        client.send(JSON.stringify({ ...msg, session: session }));
+    } catch (err) {
+        console.log('send failed: ' + err.message);
+    }
+}
+
+function sendCommand(command) {
+    send({ command: command, requestType: 'command', maxRequests: 0 });
+}
+
+function sendButton(execIndex, page, buttonId, pressed) {
+    send({
+        requestType: 'playbacks_userInput',
+        cmdline: '',
+        execIndex: execIndex,
+        pageIndex: page,
+        buttonId: buttonId,
+        pressed: pressed,
+        released: !pressed,
+        type: 0,
+        maxRequests: 0
+    });
+}
+
+function sendFader(execIndex, value) {
+    send({
+        requestType: 'playbacks_userInput',
+        execIndex: execIndex,
+        pageIndex: pageIndex2,
+        faderValue: value,
+        type: 1,
+        maxRequests: 0
+    });
+}
+
+function setMaster(value) {
+    sendCommand('SpecialMaster 2.1 At ' + value * 100);
+}
+
+// Poll dot2 for the playback state that drives the LEDs.
+function poll() {
+    if (session <= 0) return;
+    const gridStart = [300, 400, 500, 600, 700, 800].map(v => v + (wing - 1) * 8);
+    const faderStart = [6, 106, 206].map(v => v + (wing - 1) * 8);
+
+    send({
+        requestType: 'playbacks',
+        startIndex: gridStart,
+        itemsCount: [8, 8, 8, 8, 8, 8],
+        pageIndex: pageIndex,
+        itemsType: [3, 3, 3, 3, 3, 3],
+        view: 3,
+        execButtonViewMode: 2,
+        buttonsViewMode: 0,
+        maxRequests: 1
+    });
+    send({
+        requestType: 'playbacks',
+        startIndex: faderStart,
+        itemsCount: [8, 8, 8],
+        pageIndex: pageIndex2,
+        itemsType: [2, 3, 3],
+        view: 2,
+        execButtonViewMode: 1,
+        buttonsViewMode: 0,
+        maxRequests: 1
+    });
+}
+
+// --------------------------------------------------------------------------
+// midi input
+// --------------------------------------------------------------------------
+function selectWing(next) {
+    wing = next;
+    buttons = makeButtonMap(wing);
+    fbuttons = makeFaderButtonMap(wing);
+    faderExec = makeFaderExecMap(wing);
+    paintControlLeds();
+}
+
+function handlePad(note, pressed) {
+    if (note >= 0 && note <= 15) {
+        if (faderMode === 'HI') {
+            sendButton(buttons[note], pageIndex2, 0, pressed);
+        } else {
+            sendButton(fbuttons[note], pageIndex2, note < 8 ? 1 : 0, pressed);
         }
+        return;
+    }
+
+    if (note >= 16 && note <= 63) {
+        sendButton(buttons[note], pageIndex, 0, pressed);
+        return;
+    }
+
+    // Flash buttons: hold = fader to full, release = back to the physical position.
+    if (note >= 64 && note <= 71) {
+        const cc = CC_FADER_FIRST + (note - 64);
+        sendFader(faderExec[cc], pressed ? 1 : faderValueMem[cc]);
     }
 }
 
-
-//midi clear function
-function midiclear() {
-    for (i = 0; i < 90; i++) {
-        ledmatrix[i] = 0;
-        output.send('noteon', { note: i, velocity: 0, channel: 0 });
-        sleep(10, function () { });
-    }
-    return;
-}
-
-
-//clear terminal
-//console.log('\033[2J');
-
-//display info
-console.log("Akai APC mini .2 WING " + wing);
-console.log(" ");
-
-//display all midi devices
-console.log("Midi IN");
-console.log(easymidi.getInputs());
-console.log("Midi OUT");
-console.log(easymidi.getOutputs());
-
-console.log(" ");
-
-console.log("Connecting to midi device " + midi_in);
-
-//open midi device
-var input = new easymidi.Input(midi_in);
-var output = new easymidi.Output(midi_out);
-
-//sleep 1000
-sleep(1000, function () {
-    // executes after one second, and blocks the thread
-});
-
-
-//clear led matrix and led status - display .2 
-for (i = 0; i < 90; i++) {
-    output.send('noteon', { note: i, velocity: ledmatrix[i], channel: 0 });
-    sleep(10, function () { });
-}
-
-
-//light up page select buttons on bootup
-if (page > 0) {
-    output.send('noteon', { note: 82, velocity: 1, channel: 0 }); 
-    output.send('noteon', { note: 83, velocity: 0, channel: 0 });
-    output.send('noteon', { note: 84, velocity: 0, channel: 0 });
-    output.send('noteon', { note: 85, velocity: 0, channel: 0 });
-    output.send('noteon', { note: 86, velocity: 0, channel: 0 });
-}
-
-//turn on led buttons
-output.send('noteon', { note: 88, velocity: 0, channel: 0 });//fader buttons select HI
-output.send('noteon', { note: 89, velocity: 1, channel: 0 });//fader buttons select LO
-
-output.send('noteon', { note: 87, velocity: 1, channel: 0 }); //wing select
-output.send('noteon', { note: 88, velocity: 0, channel: 0 });
-
-
-
-
-//input.on('noteon', msg => console.log('noteon', msg.note, msg.velocity, msg.channel));
 input.on('noteon', function (msg) {
+    try {
+        handlePad(msg.note, true);
 
-    if (msg.note >= 0 && msg.note <= 15) {
-        if (faderbuttons == "HI") {
-            client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
-        } else {
-            if (msg.note < 8) {
-                client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + fbuttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":1,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
-            } else {
-                client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + fbuttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
-            }
-        }
-    }
-
-    if (msg.note >= 16 && msg.note <= 63) {
-        client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex + ',"buttonId":0,"pressed":true,"released":false,"type":0,"session":' + session + ',"maxRequests":0}');
-    }
-
-    if (msg.note >= 64 && msg.note <= 71) {
-        client.send('{"requestType":"playbacks_userInput","execIndex":' + exec.index[wing][msg.note - 16] + ',"pageIndex":' + pageIndex2 + ',"faderValue":' + 1 + ',"type":1,"session":' + session + ',"maxRequests":0}');
-    }
-
-//Page selection. 
-//Uncomment if you do not want this to happen
-    if (msg.note >= 82 && msg.note <= 86) {
-        if (page == 1) {
-            output.send('noteon', { note: (pageIndex + 82), velocity: 0, channel: 0 });
-            pageIndex = msg.note - 82;
-            output.send('noteon', { note: (msg.note), velocity: 1, channel: 0 });
-        }
-        if (page == 2) {
-            output.send('noteon', { note: (pageIndex + 82), velocity: 0, channel: 0 });
-            pageIndex = msg.note - 82;
-            pageIndex2 = msg.note - 82;
-            output.send('noteon', { note: (msg.note), velocity: 1, channel: 0 });
+        if (config.page > 0 && msg.note >= NOTE_PAGE_FIRST && msg.note <= NOTE_PAGE_FIRST + 4) {
+            pageIndex = msg.note - NOTE_PAGE_FIRST;
+            if (config.page === 2) pageIndex2 = pageIndex;
+            paintControlLeds();
         }
 
-    }
-	
+        if (msg.note === NOTE_WING_1) selectWing(1);
+        if (msg.note === NOTE_WING_2) selectWing(2);
 
-//wing select
-if (msg.note == 87) {
-          wing = 1;
-          faderValueMem[56] = 1;
-          fbuttons = [13, 12, 11, 10, 9, 8, 7, 6, 13, 12, 11, 10, 9, 8, 7, 6];
-          buttons = [213, 212, 211, 210, 209, 208, 207, 206, 113, 112, 111, 110, 109, 108, 107, 106, 807, 806, 805, 804, 803, 802, 801, 800, 707, 706, 705, 704, 703, 702, 701, 700, 607, 606, 605, 604, 603, 602, 601, 600, 507, 506, 505, 504, 503, 502, 501, 500, 407, 406, 405, 404, 403, 402, 401, 400, 307, 306, 305, 304, 303, 302, 301, 300];
-          output.send('noteon', { note: 87, velocity: 1, channel: 0 });
-		   output.send('noteon', { note: 88, velocity: 0, channel: 0 });
+        if (msg.note === NOTE_FADER_MODE) {
+            faderMode = faderMode === 'LO' ? 'HI' : 'LO';
+            paintControlLeds();
         }
-		if (msg.note == 88) {//wing select
-          wing = 2;
-          fbuttons = [21, 20, 19, 18, 17, 16, 15, 14, 21, 20, 19, 18, 17, 16, 15, 14];
-          buttons = [221, 220, 219, 218, 217, 216, 215, 214, 121, 120, 119, 118, 117, 116, 115, 114, 815, 814, 813, 812, 811, 810, 809, 808, 715, 714, 713, 712, 711, 710, 709, 708, 615, 614, 613, 612, 611, 610, 609, 608, 515, 514, 513, 512, 511, 510, 509, 508, 415, 414, 413, 412, 411, 410, 409, 408, 315, 314, 313, 312, 311, 310, 309, 308];
-             output.send('noteon', { note: 87, velocity: 0, channel: 0 });
-		   output.send('noteon', { note: 88, velocity: 1, channel: 0 });
+
+        if (msg.note === NOTE_SHIFT) {
+            blackout = !blackout;
+            setMaster(blackout ? 0 : faderValueMem[CC_MASTER]);
         }
-    
-
-
-if (msg.note == 89) {//fadebuttons
-        if (faderbuttons == "LO") {
-		faderbuttons = "HI";
-        output.send('noteon', { note: 89, velocity: 0, channel: 0 });
-		}
-		else{
-		faderbuttons = "LO";
-        output.send('noteon', { note: 89, velocity: 1, channel: 0 });
-		}
-}
-/*
-    if (msg.note == 88) {//fader buttons HI
-        faderbuttons = "HI";
-        output.send('noteon', { note: 88, velocity: 1, channel: 0 });
-        output.send('noteon', { note: 89, velocity: 0, channel: 0 });
+    } catch (err) {
+        console.log('noteon error: ' + err.message);
     }
-    if (msg.note == 89) {//fader buttons LO
-        faderbuttons = "LO";
-        output.send('noteon', { note: 88, velocity: 0, channel: 0 });
-        output.send('noteon', { note: 89, velocity: 1, channel: 0 });
-    }
-*/
-    if (msg.note == 98) {//Shift Button
-        if (wing == 1 || wing == 2) { //added || wing == 2 inorder to make the BO button work on both wings
-            if (blackout == 0) {
-                client.send('{"command":"SpecialMaster 2.1 At 0","session":' + session + ',"requestType":"command","maxRequests":0}');
-                blackout = 1;
-            } else if (blackout == 1) {
-                client.send('{"command":"SpecialMaster 2.1 At ' + faderValueMem[56] * 100 + '","session":' + session + ',"requestType":"command","maxRequests":0}');
-                blackout = 0;
-            }
-
-        } else {
-            client.send('{"command":"Learn SpecialMaster 3.1","session":' + session + ',"requestType":"command","maxRequests":0}');
-        }
-    }
-
-
 });
-
 
 input.on('noteoff', function (msg) {
-
-    if (msg.note >= 0 && msg.note <= 15) {
-        if (faderbuttons == "HI") {
-            client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
-        } else {
-            if (msg.note < 8) {
-                client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + fbuttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":1,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
-            } else {
-                client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + fbuttons[msg.note] + ',"pageIndex":' + pageIndex2 + ',"buttonId":0,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
-            }
-        }
+    try {
+        handlePad(msg.note, false);
+    } catch (err) {
+        console.log('noteoff error: ' + err.message);
     }
-
-    if (msg.note >= 16 && msg.note <= 63) {
-        client.send('{"requestType":"playbacks_userInput","cmdline":"","execIndex":' + buttons[msg.note] + ',"pageIndex":' + pageIndex + ',"buttonId":0,"pressed":false,"released":true,"type":0,"session":' + session + ',"maxRequests":0}');
-    }
-
-    if (msg.note >= 64 && msg.note <= 71) {
-        client.send('{"requestType":"playbacks_userInput","execIndex":' + exec.index[wing][msg.note - 16] + ',"pageIndex":' + pageIndex2 + ',"faderValue":' + faderValueMem[msg.note - 16] + ',"type":1,"session":' + session + ',"maxRequests":0}');
-    }
-
 });
 
 input.on('cc', function (msg) {
-    diff = process.hrtime(faderTime[msg.controller]);
-    if ((diff[0] * NS_PER_SEC + diff[1]) >= 50000000 | msg.value == 0 | msg.value == 127) {
+    try {
+        const cc = msg.controller;
+        if (cc < CC_FADER_FIRST || cc > CC_MASTER) return;
 
-        faderTime[msg.controller] = process.hrtime();
+        // Throttle: the APC streams far more fader messages than dot2 needs.
+        // The end points always get through so a fader never sticks short of 0/100%.
+        const now = process.hrtime.bigint();
+        const overdue = now - faderTime[cc] >= BigInt(config.faderThrottleMs) * 1000000n;
+        if (!overdue && msg.value !== 0 && msg.value !== 127) return;
+        faderTime[cc] = now;
 
-        faderValueMem[msg.controller] = faderValue[msg.value];
+        const value = FADER_VALUE[msg.value];
+        faderValueMem[cc] = value;
 
-
-        if (wing == 1) {
-            if (msg.controller == 56) {
-                if (blackout == 0){
-                client.send('{"command":"SpecialMaster 2.1 At ' + (faderValue[msg.value] * 100) + '","session":' + session + ',"requestType":"command","maxRequests":0}');
-                }
-            } else {
-                client.send('{"requestType":"playbacks_userInput","execIndex":' + exec.index[wing][msg.controller] + ',"pageIndex":' + pageIndex2 + ',"faderValue":' + faderValue[msg.value] + ',"type":1,"session":' + session + ',"maxRequests":0}');
-            }
-
+        if (cc === CC_MASTER) {
+            // While blacked out the master is held at 0; the new position is
+            // remembered and applied when blackout is released.
+            if (!blackout) setMaster(value);
+        } else {
+            sendFader(faderExec[cc], value);
         }
-
-        if (wing == 2) {
-			// origional code: 
-          /*  if (msg.controller == 56) {
-                client.send('{"command":"SpecialMaster 3.1 At ' + (faderValue[msg.value] * 225) + '","session":' + session + ',"requestType":"command","maxRequests":0}');
-            } else {
-                client.send('{"requestType":"playbacks_userInput","execIndex":' + exec.index[wing][msg.controller] + ',"pageIndex":' + pageIndex2 + ',"faderValue":' + faderValue[msg.value] + ',"type":1,"session":' + session + ',"maxRequests":0}');
-            }
-			*/
-			//this way the maser dimmer fader is present on both wings.
-            if (msg.controller == 56) {
-                if (blackout == 0){
-                client.send('{"command":"SpecialMaster 2.1 At ' + (faderValue[msg.value] * 100) + '","session":' + session + ',"requestType":"command","maxRequests":0}');
-                }
-            } else {
-                client.send('{"requestType":"playbacks_userInput","execIndex":' + exec.index[wing][msg.controller] + ',"pageIndex":' + pageIndex2 + ',"faderValue":' + faderValue[msg.value] + ',"type":1,"session":' + session + ',"maxRequests":0}');
-            }
-			
-			
-        }
+    } catch (err) {
+        console.log('cc error: ' + err.message);
     }
 });
 
+// --------------------------------------------------------------------------
+// led feedback from dot2
+// --------------------------------------------------------------------------
+function isRun(item) {
+    return item && item[0] && item[0].isRun === 1;
+}
 
+function isBlack(item) {
+    return item && item[0] && item[0].i && item[0].i.c === '#000000';
+}
 
+// Running executors blink while the console is blacked out.
+function onColor() {
+    return blackout ? LED.GREEN_BLINK : LED.GREEN;
+}
 
-console.log("Connecting to dot2 ...");
-//WEBSOCKET-------------------
-client.onerror = function () {
-    console.log('Connection Error');
-};
-
-client.onopen = function () {
-    console.log('WebSocket Client Connected');
-
-    function sendNumber() {
-        if (client.readyState === client.OPEN) {
-            var number = Math.round(Math.random() * 0xFFFFFF);
-            client.send(number.toString());
-            setTimeout(sendNumber, 1000);
+function renderGrid(obj) {
+    let note = 63;
+    for (let g = 0; g < 6; g++) {
+        for (let i = 0; i < 8; i++) {
+            const item = obj.itemGroups[g].items[i];
+            let m;
+            if (isRun(item)) m = onColor();
+            else if (isBlack(item)) m = LED.OFF;
+            else m = LED.RED;
+            led(note, m);
+            note--;
         }
     }
-    //sendNumber();
-};
+}
 
-client.onclose = function () {
-    console.log('Client Closed');
-    for (i = 0; i < 90; i++) {
-        output.send('noteon', { note: i, velocity: 0, channel: 0 });
-        sleep(10, function () { });
-    }
-    input.close();
-    output.close();
-    process.exit();
-};
+function renderFaders(obj) {
+    let note = 71;
+    for (let i = 0; i < 8; i++) {   // flash-button row
+        const item = obj.itemGroups[0].items[i];
+        let m = isRun(item) ? onColor() : LED.OFF;
+        led(note, m);
 
-client.onmessage = function (e) {
+        if (faderMode === 'LO') {
+            if (isRun(item)) m = onColor();
+            else if (isBlack(item)) m = LED.OFF;
+            else m = LED.YELLOW;
 
-
-    request = request + 1;
-    //console.log(request);
-    if (request >= 9) {
-        client.send('{"session":' + session + '}');
-        client.send('{"requestType":"getdata","data":"set","session":' + session + ',"maxRequests":1}');
-        request = 0;
+            led(note - 64, m);                                  // notes 7..0
+            if (m === LED.GREEN || m === LED.GREEN_BLINK) m = LED.YELLOW;
+            led(note - 56, m);                                  // notes 15..8
+        }
+        note--;
     }
 
-
-
-
-
-    if (typeof e.data === 'string') {
-        //console.log("Received: '" + e.data + "'");
-        //console.log(e.data);
-
-
-        obj = JSON.parse(e.data);
-        //console.log(obj);
-
-
-        if (obj.status == "server ready") {
-            console.log("SERVER READY");
-            client.send('{"session":0}')
-        }
-        if (obj.forceLogin == true) {
-            console.log("LOGIN ...");
-            session = (obj.session);
-            client.send('{"requestType":"login","username":"remote","password":"2c18e486683a3db1e645ad8523223b72","session":' + obj.session + ',"maxRequests":10}')
-        }
-
-        if (obj.session == 0) {
-            console.log("CONNECTION ERROR");
-            client.send('{"session":' + session + '}');
-        }
-
-        if (obj.session) {
-            if (obj.session == -1) {
-                console.log("Please turn on Web Remote, and set Web Remote password to \"remote\"");
-                midiclear();
-                input.close();
-                output.close();
-                process.exit();
-            } else {
-                session = (obj.session);
-            }
-        }
-
-        if (obj.text) {
-            console.log(obj.text);
-            text = obj.text;
-        }
-
-
-        if (obj.responseType == "login" && obj.result == true) {
-            setInterval(interval, 100);//80
-            console.log("...LOGGED");
-            console.log("SESSION " + session);
-        }
-
-        if (obj.responseType == "presetTypeList") {
-            //console.log("Preset Type List");
-        }
-
-
-        if (obj.responseType == "presetTypes") {
-            //console.log("Preset Types");
-        }
-
-        if (obj.responseType == "getdata") {
-            //console.log("Get Data");
-        }
-
-        if (obj.responseType == "playbacks") {
-
-
-
-            if (obj.responseSubType == 3) {
-
-                var j = 63;
-
-                for (k = 0; k < 6; k++) {
-                    for (i = 0; i < 8; i++) {
-                        var m = 5;
-                        if (obj.itemGroups[k].items[i][0].isRun == 1) {
-                            m = 1 + blackout; //all buttons (muv fader buttons) on color
-                        } else if ((obj.itemGroups[k].items[i][0].i.c) == "#000000") {
-                            m = 0
-                        } else {
-                            m = 3;
-                        }
-
-                        if (ledmatrix[j] != m) {
-                            ledmatrix[j] = m;
-                            output.send('noteon', { note: j, velocity: m, channel: 0 });
-                        }
-                        j = j - 1;
-                    }
-                }
-            }
-
-
-            if (obj.responseSubType == 2) {
-
-                j = 71;
-
-                for (i = 0; i < 8; i++) {//faders dots
-                    m = 0;
-                    if (obj.itemGroups[0].items[i][0].isRun == 1) {
-                        m = 1 + blackout;
-                    } /*else if ((obj.itemGroups[0].items[i][0].i.c) == "#000000") {
-                        m = 0
-                    } else { m = 2; }*/
-                    if (ledmatrix[j] != m) {
-                        ledmatrix[j] = m;
-                        output.send('noteon', { note: j, velocity: m, channel: 0 });
-                    }
-
-                    if (faderbuttons == "LO") {//display faders lower buttons ; fader knoppen gebruiken
-                        if (obj.itemGroups[0].items[i][0].isRun == 1) {
-                            m = 1 + blackout;
-                        } else if ((obj.itemGroups[0].items[i][0].i.c) == "#000000") {
-                            m = 0;
-                        } else { m = 5; }
-
-                        if (ledmatrix[j - 64] != m) {
-                            ledmatrix[j - 64] = m;
-                            output.send('noteon', { note: j - 64, velocity: m, channel: 0 });
-                        }
-
-                        if (m == 1 || m == 2) m = 5;
-
-                        if (ledmatrix[j - 56] != m) {
-                            ledmatrix[j - 56] = m;
-                            output.send('noteon', { note: j - 56, velocity: m, channel: 0 });
-                        }
-
-                    }
-
-
-
-                    j = j - 1;
-
-
-                }
-
-
-                if (faderbuttons == "HI") {
-                    j = 15;
-                    for (i = 0; i < 8; i++) {//upper fader exec
-
-                        if (obj.itemGroups[1].items[i][0].isRun == 1) {
-                            m = 1 + blackout; //button on color
-                        } else if ((obj.itemGroups[1].items[i][0].i.c) == "#000000") {
-                            m = 0
-                        } else { m = 3; }
-                        if (ledmatrix[j] != m) {
-                            ledmatrix[j] = m;
-                            output.send('noteon', { note: j, velocity: m, channel: 0 });
-                        }
-                        j = j - 1;
-                    }
-                    for (i = 0; i < 8; i++) {
-                        if (obj.itemGroups[2].items[i][0].isRun == 1) {
-                            m = 1 + blackout; //button on color? 2
-                        } else if ((obj.itemGroups[2].items[i][0].i.c) == "#000000") {
-                            m = 0
-                        } else { m = 3; }
-                        if (ledmatrix[j] != m) {
-                            ledmatrix[j] = m;
-                            output.send('noteon', { note: j, velocity: m, channel: 0 });
-                        }
-                        j = j - 1;
-                    }
-                }
+    if (faderMode === 'HI') {
+        note = 15;
+        for (let g = 1; g <= 2; g++) {
+            for (let i = 0; i < 8; i++) {
+                const item = obj.itemGroups[g].items[i];
+                let m;
+                if (isRun(item)) m = onColor();
+                else if (isBlack(item)) m = LED.OFF;
+                else m = LED.RED;
+                led(note, m);
+                note--;
             }
         }
     }
-};
+}
+
+// --------------------------------------------------------------------------
+// websocket
+// --------------------------------------------------------------------------
+function md5(text) {
+    return crypto.createHash('md5').update(text).digest('hex');
+}
+
+function connect() {
+    console.log('Connecting to dot2 at ' + config.host + ' ...');
+    session = 0;
+    requestCount = 0;
+    client = new W3CWebSocket(config.host);
+
+    client.onerror = function () {
+        console.log('Connection error');   // onclose follows and schedules the retry
+    };
+
+    client.onopen = function () {
+        console.log('WebSocket connected');
+    };
+
+    client.onclose = function () {
+        if (pollTimer) {
+            clearInterval(pollTimer);
+            pollTimer = null;
+        }
+        session = 0;
+        if (shuttingDown) return;
+        console.log('Connection lost, retrying in ' + config.reconnectDelayMs + 'ms');
+        paintAll(BOOT_PATTERN);
+        setTimeout(connect, config.reconnectDelayMs);
+    };
+
+    client.onmessage = function (e) {
+        if (typeof e.data !== 'string') return;
+
+        let obj;
+        try {
+            obj = JSON.parse(e.data);
+        } catch (err) {
+            return;   // dot2 occasionally emits things we do not care about
+        }
+
+        try {
+            handleMessage(obj);
+        } catch (err) {
+            console.log('message error: ' + err.message);
+        }
+    };
+}
+
+function handleMessage(obj) {
+    // dot2 drops the session if it does not hear from us often enough.
+    requestCount++;
+    if (requestCount >= 9) {
+        send({});
+        send({ requestType: 'getdata', data: 'set', maxRequests: 1 });
+        requestCount = 0;
+    }
+
+    if (obj.status === 'server ready') {
+        console.log('Server ready');
+        send({});
+    }
+
+    if (obj.forceLogin === true) {
+        console.log('Logging in ...');
+        session = obj.session;
+        send({
+            requestType: 'login',
+            username: 'remote',
+            password: md5(config.password),
+            maxRequests: 10
+        });
+    }
+
+    if (obj.session === 0) {
+        console.log('Connection error, re-announcing session');
+        send({});
+    }
+
+    if (obj.session) {
+        if (obj.session === -1) {
+            console.log('Please turn on Web Remote in dot2 and set the password to "' + config.password + '"');
+            shutdown(1);
+            return;
+        }
+        session = obj.session;
+    }
+
+    if (obj.text) console.log(obj.text);
+
+    if (obj.responseType === 'login' && obj.result === true) {
+        console.log('Logged in, session ' + session + ' -- wing ' + wing);
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = setInterval(poll, config.pollIntervalMs);
+    }
+
+    if (obj.responseType === 'playbacks' && obj.itemGroups) {
+        if (obj.responseSubType === 3) renderGrid(obj);
+        if (obj.responseSubType === 2) renderFaders(obj);
+    }
+}
+
+// --------------------------------------------------------------------------
+// startup / shutdown
+// --------------------------------------------------------------------------
+let shutdownStarted = false;
+
+async function shutdown(code) {
+    if (shutdownStarted) return;
+    shutdownStarted = true;
+    shuttingDown = true;
+
+    if (pollTimer) clearInterval(pollTimer);
+    console.log('');
+    console.log('Clearing APC and closing ...');
+
+    try {
+        await paintAll(new Array(NOTE_COUNT).fill(LED.OFF));
+        for (const n of [NOTE_PAGE_FIRST, NOTE_PAGE_FIRST + 1, NOTE_PAGE_FIRST + 2, NOTE_PAGE_FIRST + 3, NOTE_PAGE_FIRST + 4, NOTE_WING_1, NOTE_WING_2, NOTE_FADER_MODE]) {
+            ledForce(n, LED.OFF);
+        }
+    } catch (err) {
+        // the device may already be gone; nothing useful to do here
+    }
+
+    try { if (client && client.readyState === client.OPEN) client.close(); } catch (err) { }
+    try { input.close(); } catch (err) { }
+    try { output.close(); } catch (err) { }
+
+    process.exit(code || 0);
+}
+
+process.on('SIGINT', () => shutdown(0));
+process.on('SIGTERM', () => shutdown(0));
+
+(async function main() {
+    await paintAll(BOOT_PATTERN);
+    paintControlLeds();
+    connect();
+})();
